@@ -1,2 +1,2 @@
-# SPCITCLUB-app
-SPC IT CLUB APP For Mobile
+# SPCITCLUB App
+The SPC IT CLUB APP For Mobile
