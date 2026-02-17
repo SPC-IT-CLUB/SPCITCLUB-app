@@ -4,240 +4,255 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPC IT Club</title>
+
 <style>
 *{box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
 body{margin:0;background:linear-gradient(135deg,#020617,#0f172a);color:white;}
+
 header{text-align:center;padding:15px;position:relative;}
-header img#logo{width:85px;border-radius:50%;box-shadow:0 0 20px rgba(56,189,248,0.6);}
-header h2{margin:10px 0 0;font-weight:600;}
-#profileBtn{position:absolute;top:15px;right:15px;width:50px;height:50px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid #38bdf8;display:none;}
+#logo{width:80px;border-radius:50%;}
+#profileBtn{position:absolute;top:15px;right:15px;width:50px;height:50px;border-radius:50%;overflow:hidden;border:2px solid #38bdf8;display:none;cursor:pointer;}
 #profileBtn img{width:100%;height:100%;object-fit:cover;}
-#profileMenu{position:absolute;top:70px;right:15px;background:rgba(30,41,59,0.95);backdrop-filter:blur(10px);border-radius:12px;display:none;width:150px;text-align:center;z-index:100;}
-#profileMenu button{width:100%;padding:10px;border:none;background:none;color:#38bdf8;cursor:pointer;}
-#profileMenu button:hover{background:rgba(56,189,248,0.1);}
+
+#profileMenu{
+  position:absolute;
+  top:70px;
+  right:15px;
+  background:#1e293b;
+  border-radius:12px;
+  display:none;
+  width:150px;
+  overflow:hidden;
+}
+#profileMenu button{
+  width:100%;
+  background:none;
+  border:none;
+  color:#38bdf8;
+  padding:10px;
+  cursor:pointer;
+}
+
 .page{display:none;padding:20px;padding-bottom:90px;}
 .active{display:block;}
-.card{background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:16px;padding:15px;margin-bottom:15px;}
-.card .username{font-weight:bold;display:block;margin-bottom:5px;}
-.empty{opacity:0.5;text-align:center;margin-top:40px;}
-nav{position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;background:rgba(15,23,42,0.8);backdrop-filter:blur(10px);padding:10px 0;border-top:1px solid rgba(255,255,255,0.1);}
-nav button{background:none;border:none;color:#94a3b8;font-size:13px;}
+
+.card{
+  background:rgba(255,255,255,0.05);
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:10px;
+}
+
+nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#0f172a;
+  padding:10px 0;
+}
+nav button{background:none;border:none;color:#94a3b8;}
 nav button.active{color:#38bdf8;}
-input,button{padding:10px;margin:5px 0;border-radius:8px;border:none;width:100%;}
-button{background-color:#38bdf8;color:black;font-weight:bold;cursor:pointer;}
-button:hover{background-color:#0ea5e9;}
-.form-container{max-width:350px;margin:50px auto;}
+
+input,button{padding:10px;border-radius:8px;border:none;width:100%;margin-top:5px;}
+button{background:#38bdf8;color:black;font-weight:bold;}
 </style>
 </head>
+
 <body>
 
 <header>
-  <img id="logo" src="https://avatars.githubusercontent.com/u/243899719?s=400">
-  <h2>SPC IT Club</h2>
+<img id="logo" src="https://avatars.githubusercontent.com/u/243899719?s=400">
+<h2>SPC IT Club</h2>
 
-  <!-- Profile Button -->
-  <div id="profileBtn">
-    <img id="profilePic" src="https://via.placeholder.com/50" onclick="toggleProfileMenu()">
-  </div>
+<div id="profileBtn" onclick="toggleMenu()">
+  <img id="profilePic" src="https://via.placeholder.com/50">
+</div>
 
-  <!-- Dropdown Menu -->
-  <div id="profileMenu">
-    <button onclick="uploadProfile()">Upload Picture</button>
-    <button onclick="logout()">Logout</button>
-    <input type="file" id="profileInput" accept="image/*" style="display:none" onchange="saveProfilePic(event)">
-  </div>
+<div id="profileMenu">
+  <button onclick="uploadPic()">Change Picture</button>
+  <button onclick="logout()">Logout</button>
+  <input type="file" id="fileInput" style="display:none" onchange="savePic(event)">
+</div>
 </header>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <div id="login" class="page active">
-  <div class="form-container card">
-    <h3>Login</h3>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <div id="loginError" class="empty"></div>
-  </div>
+  <h3>Login</h3>
+  <input id="user" placeholder="Username">
+  <input id="pass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p id="error"></p>
 </div>
 
-<!-- HOME PAGE -->
+<!-- HOME -->
 <div id="home" class="page">
-  <div class="empty">Welcome to SPC IT Club!</div>
+  <h3>Welcome</h3>
 </div>
 
-<!-- ANNOUNCEMENTS PAGE -->
+<!-- ANNOUNCEMENTS -->
 <div id="announcements" class="page">
   <h3>Announcements</h3>
   <div id="announcementsContainer"></div>
-  <div class="empty">No announcements yet</div>
 </div>
 
-<!-- EVENTS PAGE -->
+<!-- EVENTS -->
 <div id="events" class="page">
   <h3>Events</h3>
   <div id="eventsContainer"></div>
 </div>
 
-<!-- NAVIGATION -->
-<nav id="navBar" style="display:none;">
-  <button onclick="switchPage('home', this)" class="active">Home</button>
-  <button onclick="switchPage('announcements', this)">Announcements</button>
-  <button onclick="switchPage('events', this)">Events</button>
+<nav id="nav" style="display:none;">
+  <button onclick="showPage('home',this)" class="active">Home</button>
+  <button onclick="showPage('announcements',this)">Announcements</button>
+  <button onclick="showPage('events',this)">Events</button>
 </nav>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbzzvNcHFA1vNl7wGIp_3wQSPybcmBxlYtxYdZQ0ays0tdMxD0WulYFIOYjw76Kxa1MD6Q/exec";
-const DISCORD_BOT_TOKEN = "YOUR_BOT_TOKEN"; // replace
-const DISCORD_CHANNEL_ID = "YOUR_CHANNEL_ID"; // replace
+const URL = "https://script.google.com/macros/s/AKfycbzzvNcHFA1vNl7wGIp_3wQSPybcmBxlYtxYdZQ0ays0tdMxD0WulYFIOYjw76Kxa1MD6Q/exec";
 
 let currentUser = null;
-let announcementsInterval = null; // store interval ID
+let refreshTimer = null;
 
-// --- LOGIN ---
+// LOGIN
 async function login(){
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
-  const formData = new FormData();
-  formData.append('action','login');
-  formData.append('username',u);
-  formData.append('password',p);
+  const form = new FormData();
+  form.append("action","login");
+  form.append("username",user.value);
+  form.append("password",pass.value);
 
-  try{
-    const res = await fetch(SHEET_URL,{method:'POST',body:formData});
-    const data = await res.json();
-    if(data.success){
-      currentUser = u;
-      document.getElementById("login").classList.remove("active");
-      document.getElementById("navBar").style.display = "flex";
-      document.getElementById("profileBtn").style.display = "block";
-      document.getElementById("profilePic").src = data.profilePic || "https://via.placeholder.com/50";
-      document.getElementById("loginError").textContent = "";
-      switchPage("home", document.querySelector("#navBar button"));
+  const res = await fetch(URL,{method:"POST",body:form});
+  const data = await res.json();
 
-      // Immediately load announcements and then start auto-refresh
-      loadAnnouncements();
-      if(announcementsInterval) clearInterval(announcementsInterval);
-      announcementsInterval = setInterval(loadAnnouncements,30000);
+  if(data.success){
+    currentUser = user.value;
 
-      loadEvents();
-    } else {
-      document.getElementById("loginError").textContent = "Invalid login";
-    }
-  }catch(e){
-    console.error(e);
-    document.getElementById("loginError").textContent = "Login failed";
+    loginPage(false);
+
+    profileBtn.style.display="block";
+    profilePic.src = data.profilePic || "https://via.placeholder.com/50";
+
+    // LOAD IMMEDIATELY
+    loadAnnouncements();
+    loadEvents();
+
+    // START TIMER
+    if(refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(loadAnnouncements,30000);
+
+  } else {
+    error.innerText="Invalid login";
   }
 }
 
-// --- NAVIGATION ---
-function switchPage(pageId,btn){
+// SHOW/HIDE LOGIN
+function loginPage(show){
+  login.style.display = show ? "block" : "none";
+  nav.style.display = show ? "none" : "flex";
+  home.classList.add("active");
+}
+
+// NAV
+function showPage(id,btn){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  document.getElementById(pageId).classList.add("active");
-  if(btn) btn.classList.add("active");
+  document.getElementById(id).classList.add("active");
+  btn.classList.add("active");
 }
 
-// --- PROFILE MENU ---
-function toggleProfileMenu(){
-  const menu = document.getElementById("profileMenu");
-  menu.style.display = (menu.style.display === "block") ? "none" : "block";
+// PROFILE MENU
+function toggleMenu(){
+  profileMenu.style.display = profileMenu.style.display==="block" ? "none":"block";
 }
 
-function uploadProfile(){ 
-  document.getElementById("profileInput").click(); 
+function uploadPic(){
+  fileInput.click();
 }
 
-async function saveProfilePic(e){
-  if(!currentUser) return;
-  const file = e.target.files[0]; if(!file) return;
+// SAVE PIC
+async function savePic(e){
+  const file = e.target.files[0];
   const reader = new FileReader();
+
   reader.onload = async function(){
-    document.getElementById("profilePic").src = reader.result;
-    const formData = new FormData();
-    formData.append('action','savePic');
-    formData.append('username',currentUser);
-    formData.append('pic',reader.result);
-    await fetch(SHEET_URL,{method:'POST',body:formData});
+    profilePic.src = reader.result;
+
+    const form = new FormData();
+    form.append("action","savePic");
+    form.append("username",currentUser);
+    form.append("pic",reader.result);
+
+    await fetch(URL,{method:"POST",body:form});
   }
+
   reader.readAsDataURL(file);
-  document.getElementById("profileMenu").style.display = "none";
 }
 
-// --- LOGOUT ---
+// LOGOUT
 function logout(){
-  currentUser = null;
-  document.getElementById("navBar").style.display="none";
-  document.getElementById("profileBtn").style.display="none";
-  document.getElementById("profileMenu").style.display="none";
-  document.getElementById("profilePic").src = "https://via.placeholder.com/50";
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById("login").classList.add("active");
+  currentUser=null;
 
-  // Stop auto-refresh
-  if(announcementsInterval) clearInterval(announcementsInterval);
+  nav.style.display="none";
+  profileBtn.style.display="none";
+  profileMenu.style.display="none";
+
+  login.style.display="block";
+
+  if(refreshTimer) clearInterval(refreshTimer);
 }
 
-// --- ANNOUNCEMENTS ---
+// ANNOUNCEMENTS (Sheet + Discord)
 async function loadAnnouncements(){
-  const c = document.getElementById("announcementsContainer");
-  c.innerHTML = "";
+  announcementsContainer.innerHTML="";
 
-  // --- Sheet3 announcements ---
-  try{
-    const res = await fetch(`${SHEET_URL}?action=getAnnouncements`);
-    const data = await res.json();
-    if(data.success && data.announcements.length){
-      data.announcements.forEach(ann => {
-        c.innerHTML += `<div class="card">
-          <strong>${ann.title}</strong>
-          <p>${ann.content}</p>
-          <small>By ${ann.createdBy} at ${new Date(ann.dateTime).toLocaleString()}</small>
-        </div>`;
-      });
-    }
-  }catch(err){
-    console.error("Sheet3 announcements failed", err);
-  }
+  // SHEET
+  const res1 = await fetch(`${URL}?action=getAnnouncements`);
+  const data1 = await res1.json();
 
-  // --- Discord announcements ---
-  try{
-    const res = await fetch(`https://discord.com/api/v10/channels/${DISCORD_CHANNEL_ID}/messages?limit=10`,{
-      headers:{Authorization:`Bot ${DISCORD_BOT_TOKEN}`}
+  if(data1.success){
+    data1.announcements.forEach(a=>{
+      announcementsContainer.innerHTML += `
+      <div class="card">
+        <b>${a.title}</b>
+        <p>${a.content}</p>
+        <small>${a.createdBy}</small>
+      </div>`;
     });
-    const msgs = await res.json();
-    if(msgs && msgs.length){
-      msgs.forEach(msg => {
-        c.innerHTML += `<div class="card">
-          <span class="username">${msg.author.username}</span>
-          <p>${msg.content}</p>
-          <small>${new Date(msg.timestamp).toLocaleString()}</small>
-        </div>`;
-      });
-    }
-  }catch(err){
-    console.error("Discord announcements failed", err);
   }
 
-  if(c.innerHTML === "") c.innerHTML = "<div class='empty'>No announcements yet</div>";
+  // DISCORD
+  const res2 = await fetch(`${URL}?action=getDiscord`);
+  const data2 = await res2.json();
+
+  if(data2.success){
+    data2.messages.forEach(m=>{
+      announcementsContainer.innerHTML += `
+      <div class="card">
+        <b>${m.username}</b>
+        <p>${m.content}</p>
+      </div>`;
+    });
+  }
 }
 
-// --- EVENTS ---
+// EVENTS
 async function loadEvents(){
-  const c = document.getElementById("eventsContainer"); c.innerHTML="";
-  try{
-    const res = await fetch(`${SHEET_URL}?action=getEvents`);
-    const data = await res.json();
-    if(data.success && data.events.length){
-      data.events.forEach(ev=>{
-        c.innerHTML+=`<div class="card">
-          <strong>${ev.title}</strong> <small>${ev.date} ${ev.time}</small>
-          <p>${ev.description || ""}</p>
-          <small>Created by: ${ev.createdBy}</small>
-        </div>`;
-      });
-    } else {
-      c.innerHTML="<div class='empty'>No events yet</div>";
-    }
-  }catch(err){ c.innerHTML="<div class='empty'>Failed to load events</div>"; console.error(err);}
+  eventsContainer.innerHTML="";
+
+  const res = await fetch(`${URL}?action=getEvents`);
+  const data = await res.json();
+
+  if(data.success){
+    data.events.forEach(e=>{
+      eventsContainer.innerHTML += `
+      <div class="card">
+        <b>${e.title}</b>
+        <p>${e.date} ${e.time}</p>
+        <p>${e.description}</p>
+      </div>`;
+    });
+  }
 }
 </script>
 
