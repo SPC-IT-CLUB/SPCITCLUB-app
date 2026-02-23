@@ -5,111 +5,110 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPC IT CLUB APP</title>
 <style>
-    :root {
-        --primary-color: #800020; /* Burgundy */
-        --secondary-color: #FFD100; /* Gold */
-        --tertiary-color: #A0A0A0; /* Grey */
-        --background-color: #fafafa;
-        --text-color: #222;
-        --popup-bg: rgba(0,0,0,0.55);
-    }
+:root {
+    --primary-color: #800020; /* Burgundy */
+    --secondary-color: #FFD100; /* Gold */
+    --tertiary-color: #A0A0A0; /* Grey */
+    --background-color: #fafafa;
+    --text-color: #222;
+    --popup-bg: rgba(0,0,0,0.55);
+}
 
-    body {
-        margin: 0;
-        font-family: 'Segoe UI', Roboto, sans-serif;
-        background-color: var(--background-color);
-        color: var(--text-color);
-        text-align: center; /* Center content by default */
-    }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    text-align: center;
+}
 
-    .app {
-        max-width: 480px;
-        margin: 0 auto;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        background-color: white;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        border-radius: 12px;
-        overflow: hidden;
-    }
+.app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
 
-    header {
-        background-color: var(--primary-color);
-        color: var(--secondary-color);
-        padding: 18px;
-        font-size: 1.6rem;
-        font-weight: bold;
-        position: relative;
-    }
+header {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 18px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    position: relative;
+}
 
-    button {
-        background-color: var(--primary-color);
-        color: var(--secondary-color);
-        border: none;
-        padding: 10px 18px;
-        margin: 6px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s ease;
-    }
+button {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: none;
+    padding: 10px 18px;
+    margin: 6px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
 
-    button:hover {
-        background-color: var(--tertiary-color);
-    }
+button:hover {
+    background-color: var(--tertiary-color);
+}
 
-    .content {
-        flex: 1;
-        padding: 18px;
-    }
+.content {
+    flex: 1;
+    padding: 18px;
+}
 
-    /* Announcements left aligned */
-    #announcementsContainer {
-        text-align: left;
-    }
+#announcementsContainer {
+    text-align: left;
+}
 
-    .announcement {
-        background-color: var(--secondary-color);
-        color: var(--primary-color);
-        padding: 14px;
-        margin: 10px 0;
-        border-radius: 8px;
-        font-weight: bold;
-    }
+.announcement {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    padding: 14px;
+    margin: 10px 0;
+    border-radius: 8px;
+    font-weight: bold;
+}
 
-    .popup {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: var(--popup-bg);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 100;
-    }
+.popup {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: var(--popup-bg);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
 
-    .popup-content {
-        background: white;
-        padding: 22px;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 380px;
-        box-shadow: 0 5px 18px rgba(0,0,0,0.3);
-    }
+.popup-content {
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.3);
+}
 
-    input, textarea {
-        padding: 10px;
-        margin: 8px 0;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        width: 100%;
-        font-size: 1rem;
-    }
+input, textarea {
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+    font-size: 1rem;
+}
 
-    textarea {
-        resize: none;
-    }
+textarea {
+    resize: none;
+}
 </style>
 </head>
 <body>
@@ -146,49 +145,66 @@
     </div>
 </div>
 
-<script>
-    const ADMIN_PASSWORD = "admin123"; // Change if needed
+<!-- Firebase Modular SDK -->
+<script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, set, onValue, query, orderByKey } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDiN7DkL1KwVsntRjDkU3dHAnOp1zmwNoI",
+      authDomain: "spcitapp.firebaseapp.com",
+      projectId: "spcitapp",
+      storageBucket: "spcitapp.firebasestorage.app",
+      messagingSenderId: "713788616271",
+      appId: "1:713788616271:web:e44c20b347a680c1a5043a"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const ADMIN_PASSWORD = "admin123"; // Change this if desired
     const announcementsContainer = document.getElementById("announcementsContainer");
 
-    function openAdminLogin() {
-        document.getElementById('adminLoginPopup').style.display = 'flex';
-    }
-    function closePopup(id) {
-        document.getElementById(id).style.display = 'none';
-    }
+    function openAdminLogin() { document.getElementById('adminLoginPopup').style.display = 'flex'; }
+    function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+
     function loginAdmin() {
         const pw = document.getElementById("adminPassword").value;
         if(pw === ADMIN_PASSWORD){
             closePopup('adminLoginPopup');
             document.getElementById("adminPassword").value = "";
             document.getElementById('postAnnouncementPopup').style.display = 'flex';
-        } else {
-            alert("Incorrect admin password!");
-        }
+        } else { alert("Incorrect admin password!"); }
     }
+
     function postAnnouncement() {
         const text = document.getElementById("announcementInput").value.trim();
-        if(text) {
-            let announcements = JSON.parse(localStorage.getItem("announcements") || "[]");
-            announcements.unshift({text: text, date: new Date().toLocaleString()});
-            localStorage.setItem("announcements", JSON.stringify(announcements));
+        if(text){
+            const newPostRef = push(ref(db, 'announcements'));
+            set(newPostRef, { text: text, date: new Date().toLocaleString() });
             document.getElementById("announcementInput").value = "";
             closePopup('postAnnouncementPopup');
-            loadAnnouncements();
-        }
+        } else { alert("Please write something!"); }
     }
+
     function loadAnnouncements() {
-        let announcements = JSON.parse(localStorage.getItem("announcements") || "[]");
-        announcementsContainer.innerHTML = "";
-        if(announcements.length === 0){
-            announcementsContainer.innerHTML = "<p>No announcements yet.</p>";
-            return;
-        }
-        announcements.forEach(a => {
-            const div = document.createElement("div");
-            div.className = "announcement";
-            div.innerHTML = `<strong>${a.date}</strong><br>${a.text}`;
-            announcementsContainer.appendChild(div);
+        const announcementsQuery = query(ref(db, 'announcements'), orderByKey());
+        onValue(announcementsQuery, (snapshot) => {
+            announcementsContainer.innerHTML = "";
+            if(!snapshot.exists()) {
+                announcementsContainer.innerHTML = "<p>No announcements yet.</p>";
+                return;
+            }
+            snapshot.forEach((childSnapshot) => {
+                const a = childSnapshot.val();
+                const div = document.createElement("div");
+                div.className = "announcement";
+                div.innerHTML = `<strong>${a.date}</strong><br>${a.text}`;
+                announcementsContainer.prepend(div);
+            });
         });
     }
 
