@@ -17,13 +17,13 @@ header h1#appButton:hover{transform:scale(1.05);}
 .announcement img{width:100%;border-radius:10px;margin-bottom:10px;}
 .announcement h3{margin:0 0 5px 0;}
 .admin-controls{margin-top:10px;}
-.admin-controls button{padding:6px 10px;margin-right:5px;font-size:0.8rem;cursor:pointer;}
+.admin-controls button{padding:6px 10px;margin-right:5px;font-size:0.8rem;}
 .popup{position:fixed;inset:0;backdrop-filter:blur(10px);background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:flex-end;opacity:0;pointer-events:none;transition:0.3s;z-index:100;}
 .popup.active{opacity:1;pointer-events:all;}
 .popup-content{width:90%;max-width:480px;background:white;border-radius:20px 20px 0 0;padding:20px;transform:translateY(100%);transition:0.3s;}
 .popup.active .popup-content{transform:translateY(0);}
 input,textarea{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ccc;font-size:1rem;}
-button.primary{background:var(--primary);color:var(--gold);border:none;padding:12px;border-radius:10px;font-weight:bold;width:100%;margin-top:10px;}
+button{background:var(--primary);color:var(--gold);border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;width:100%;margin-top:10px;}
 @media(min-width:768px){.popup-content{max-width:500px;} header{font-size:2rem;}}
 </style>
 </head>
@@ -44,8 +44,8 @@ button.primary{background:var(--primary);color:var(--gold);border:none;padding:1
 <div class="popup-content">
 <h3>Admin Login</h3>
 <input type="password" id="adminPassword" placeholder="Enter password">
-<button class="primary" id="loginBtn">Login</button>
-<button class="primary" onclick="closePopup('adminLogin')">Cancel</button>
+<button id="loginBtn">Login</button>
+<button onclick="closePopup('adminLogin')">Cancel</button>
 </div>
 </div>
 
@@ -56,17 +56,17 @@ button.primary{background:var(--primary);color:var(--gold);border:none;padding:1
 <input type="text" id="titleInput" placeholder="Title">
 <textarea id="contentInput" rows="3" placeholder="Announcement text"></textarea>
 <input type="file" id="thumbnailInput" accept="image/*">
-<button class="primary" id="savePostBtn">Send</button>
-<button class="primary" onclick="closePopup('postPopup')">Cancel</button>
+<button id="savePostBtn">Send</button>
+<button onclick="closePopup('postPopup')">Cancel</button>
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// Firebase
+/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyDiN7DkL1KwVsntRjDkU3dHAnOp1zmwNoI",
   authDomain: "spcitapp.firebaseapp.com",
@@ -80,48 +80,52 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const ADMIN_PASSWORD = "admin123";
-let isAdmin = false;
+let isAdmin = false; // Tracks admin login
 let editingId = null;
 
-const openPopup = id => document.getElementById(id).classList.add("active");
-const closePopup = id => document.getElementById(id).classList.remove("active");
+/* Popup functions */
+window.openPopup = id => document.getElementById(id).classList.add("active");
+window.closePopup = id => document.getElementById(id).classList.remove("active");
 
-// Secret header login
+/* Secret header button triggers admin login */
 document.getElementById("appButton").addEventListener("click", () => openPopup('adminLogin'));
 
-// Admin login
-document.getElementById("loginBtn").addEventListener("click", () => {
+/* Admin login */
+document.getElementById("loginBtn").addEventListener("click", async () => {
   const pass = document.getElementById("adminPassword").value;
   if(pass === ADMIN_PASSWORD){
-    isAdmin = true;
+    isAdmin = true; // Admin is now logged in
     closePopup('adminLogin');
-    openPostPopup(); // optional new post
+    openPostPopup(); // Optional: open new post popup
+    renderAnnouncements(); // Show admin controls immediately
   } else alert("Wrong password");
 });
 
-// Open post popup
-async function openPostPopup(id=null){
+/* Open Post Popup */
+function openPostPopup(id=null){
   editingId = id;
   document.getElementById("postTitle").innerText = id ? "Edit Announcement" : "New Announcement";
   document.getElementById("titleInput").value = "";
   document.getElementById("contentInput").value = "";
-  document.getElementById("thumbnailInput").value = "";
 
   if(id){
-    const docRef = doc(db,"announcements",id);
-    const docSnap = await getDoc(docRef);
-    if(docSnap.exists()){
-      const data = docSnap.data();
-      document.getElementById("titleInput").value = data.title;
-      document.getElementById("contentInput").value = data.content;
-    }
+    getDocs(collection(db,"announcements")).then(query=>{
+      query.forEach(docSnap=>{
+        if(docSnap.id === id){
+          const data = docSnap.data();
+          document.getElementById("titleInput").value = data.title;
+          document.getElementById("contentInput").value = data.content;
+        }
+      });
+    });
   }
   openPopup('postPopup');
 }
 
-// Save post
+/* Save Post */
 document.getElementById("savePostBtn").addEventListener("click", async ()=>{
   if(!isAdmin) return alert("You must be logged in as admin!");
+
   const title = document.getElementById("titleInput").value.trim();
   const content = document.getElementById("contentInput").value.trim();
   const file = document.getElementById("thumbnailInput").files[0];
@@ -136,61 +140,42 @@ document.getElementById("savePostBtn").addEventListener("click", async ()=>{
   }
 
   if(editingId){
-    await updateDoc(doc(db,"announcements",editingId),{
-      title, content, image: imageUrl, date: new Date().toLocaleString()
-    });
+    await updateDoc(doc(db,"announcements",editingId),{title,content,image:imageUrl,date:new Date().toLocaleString()});
   } else{
-    await addDoc(collection(db,"announcements"),{
-      title, content, image: imageUrl, date: new Date().toLocaleString()
-    });
+    await addDoc(collection(db,"announcements"),{title,content,image:imageUrl,date:new Date().toLocaleString()});
   }
 
   closePopup('postPopup');
 });
 
-// Delete post
-async function deletePost(id){
+/* Delete Post */
+window.deletePost = async function(id){
   if(!isAdmin) return alert("You must be logged in as admin!");
   if(!confirm("Delete this post?")) return;
   await deleteDoc(doc(db,"announcements",id));
 }
 
-// Render announcements with dynamic buttons
+/* Real-time announcements with admin controls */
 const announcementsContainer = document.getElementById("announcementsContainer");
 
 function renderAnnouncements(){
   onSnapshot(collection(db,"announcements"), snapshot=>{
-    announcementsContainer.innerHTML = "";
+    announcementsContainer.innerHTML="";
     snapshot.forEach(docSnap=>{
       const post = docSnap.data();
       const id = docSnap.id;
       const div = document.createElement("div");
       div.className = "announcement";
-
-      // Announcement HTML
-      let innerHTML = "";
-      if(post.image) innerHTML += `<img src="${post.image}">`;
-      innerHTML += `<h3>${post.title}</h3><p>${post.content}</p><small>${post.date}</small>`;
-      div.innerHTML = innerHTML;
-
-      // Admin buttons dynamically
-      if(isAdmin){
-        const controls = document.createElement("div");
-        controls.className = "admin-controls";
-
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.onclick = () => openPostPopup(id);
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Delete";
-        deleteBtn.onclick = () => deletePost(id);
-
-        controls.appendChild(editBtn);
-        controls.appendChild(deleteBtn);
-        div.appendChild(controls);
-      }
-
+      div.innerHTML = `
+        ${post.image?`<img src="${post.image}">`:""}
+        <h3>${post.title}</h3>
+        <p>${post.content}</p>
+        <small>${post.date}</small>
+        ${isAdmin?`<div class="admin-controls">
+          <button onclick="openPostPopup('${id}')">Edit</button>
+          <button onclick="deletePost('${id}')">Delete</button>
+        </div>`:""}
+      `;
       announcementsContainer.appendChild(div);
     });
   });
