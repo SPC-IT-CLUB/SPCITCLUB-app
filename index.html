@@ -8,8 +8,25 @@
 :root { --primary:#800020; --gold:#FFD100; }
 body{margin:0;font-family:'Segoe UI',sans-serif;background:#f4f4f4;}
 .app{max-width:800px;margin:auto;min-height:100vh;background:white;border-radius:16px;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.1);position:relative;}
-header{display:flex;justify-content:center;align-items:center;background:var(--primary);color:var(--gold);padding:20px;font-size:1.8rem;font-weight:bold;position:relative;}
-header h1#appButton{flex:1;text-align:center;margin:0;cursor:pointer;user-select:none;transition:transform 0.2s;}
+header{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:var(--primary);
+  color:var(--gold);
+  padding:20px;
+  font-weight:bold;
+  position:relative;
+}
+header h1#appButton{
+  flex:1;
+  text-align:center;
+  margin:0;
+  cursor:pointer;
+  user-select:none;
+  transition:transform 0.2s;
+  font-size: clamp(1.5rem, 5vw, 2.5rem); /* Responsive font size */
+}
 header h1#appButton:hover{transform:scale(1.05);}
 .content{padding:20px;text-align:center;}
 #announcementsContainer{text-align:left;}
@@ -24,7 +41,9 @@ header h1#appButton:hover{transform:scale(1.05);}
 .popup.active .popup-content{transform:translateY(0);}
 input,textarea{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ccc;font-size:1rem;}
 button{background:var(--primary);color:var(--gold);border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;width:100%;margin-top:10px;}
-@media(min-width:768px){.popup-content{max-width:500px;} header{font-size:2rem;}}
+@media(min-width:768px){
+  .popup-content{max-width:500px;}
+}
 </style>
 </head>
 <body>
@@ -80,28 +99,24 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 const ADMIN_PASSWORD = "admin123";
-let isAdmin = false; // Tracks admin login
+let isAdmin = false; 
 let editingId = null;
 
-/* Popup functions */
 window.openPopup = id => document.getElementById(id).classList.add("active");
 window.closePopup = id => document.getElementById(id).classList.remove("active");
 
-/* Secret header button triggers admin login */
 document.getElementById("appButton").addEventListener("click", () => openPopup('adminLogin'));
 
-/* Admin login */
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const pass = document.getElementById("adminPassword").value;
   if(pass === ADMIN_PASSWORD){
-    isAdmin = true; // Admin is now logged in
+    isAdmin = true; 
     closePopup('adminLogin');
-    openPostPopup(); // Optional: open new post popup
-    renderAnnouncements(); // Show admin controls immediately
+    openPostPopup(); 
+    renderAnnouncements(); 
   } else alert("Wrong password");
 });
 
-/* Open Post Popup */
 function openPostPopup(id=null){
   editingId = id;
   document.getElementById("postTitle").innerText = id ? "Edit Announcement" : "New Announcement";
@@ -122,7 +137,6 @@ function openPostPopup(id=null){
   openPopup('postPopup');
 }
 
-/* Save Post */
 document.getElementById("savePostBtn").addEventListener("click", async ()=>{
   if(!isAdmin) return alert("You must be logged in as admin!");
 
@@ -148,14 +162,12 @@ document.getElementById("savePostBtn").addEventListener("click", async ()=>{
   closePopup('postPopup');
 });
 
-/* Delete Post */
 window.deletePost = async function(id){
   if(!isAdmin) return alert("You must be logged in as admin!");
   if(!confirm("Delete this post?")) return;
   await deleteDoc(doc(db,"announcements",id));
 }
 
-/* Real-time announcements with admin controls */
 const announcementsContainer = document.getElementById("announcementsContainer");
 
 function renderAnnouncements(){
@@ -181,7 +193,6 @@ function renderAnnouncements(){
   });
 }
 
-// Start real-time listener
 renderAnnouncements();
 </script>
 </body>
