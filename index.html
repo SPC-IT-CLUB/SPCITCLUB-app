@@ -5,211 +5,184 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPC IT CLUB APP</title>
 <style>
-:root {
-    --primary-color: #800020; /* Burgundy */
-    --secondary-color: #FFD100; /* Gold */
-    --tertiary-color: #A0A0A0; /* Grey */
-    --background-color: #fafafa;
-    --text-color: #222;
-    --popup-bg: rgba(0,0,0,0.55);
-}
-
-body {
-    margin: 0;
-    font-family: 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    text-align: center;
-}
-
-.app {
-    max-width: 480px;
-    margin: 0 auto;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-header {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-    padding: 18px;
-    font-size: 1.6rem;
-    font-weight: bold;
-    position: relative;
-}
-
-button {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-    border: none;
-    padding: 10px 18px;
-    margin: 6px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s ease;
-}
-
-button:hover {
-    background-color: var(--tertiary-color);
-}
-
-.content {
-    flex: 1;
-    padding: 18px;
-}
-
-#announcementsContainer {
-    text-align: left;
-}
-
-.announcement {
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
-    padding: 14px;
-    margin: 10px 0;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-.popup {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: var(--popup-bg);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-}
-
-.popup-content {
-    background: white;
-    padding: 22px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 380px;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.3);
-}
-
-input, textarea {
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    width: 100%;
-    font-size: 1rem;
-}
-
-textarea {
-    resize: none;
-}
+:root { --primary:#800020; --gold:#FFD100; }
+body{margin:0;font-family:'Segoe UI',sans-serif;background:#f4f4f4;}
+.app{max-width:800px;margin:auto;min-height:100vh;background:white;border-radius:16px;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.1);position:relative;}
+header{display:flex;justify-content:center;align-items:center;background:var(--primary);color:var(--gold);padding:20px;font-size:1.8rem;font-weight:bold;position:relative;}
+header h1#appButton{flex:1;text-align:center;margin:0;cursor:pointer;user-select:none;transition:transform 0.2s;}
+header h1#appButton:hover{transform:scale(1.05);}
+.content{padding:20px;text-align:center;}
+#announcementsContainer{text-align:left;}
+.announcement{background:var(--gold);color:var(--primary);padding:15px;border-radius:14px;margin:15px 0;}
+.announcement img{width:100%;border-radius:10px;margin-bottom:10px;}
+.announcement h3{margin:0 0 5px 0;}
+.admin-controls{margin-top:10px;}
+.admin-controls button{padding:6px 10px;margin-right:5px;font-size:0.8rem;}
+.popup{position:fixed;inset:0;backdrop-filter:blur(10px);background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:flex-end;opacity:0;pointer-events:none;transition:0.3s;z-index:100;}
+.popup.active{opacity:1;pointer-events:all;}
+.popup-content{width:90%;max-width:480px;background:white;border-radius:20px 20px 0 0;padding:20px;transform:translateY(100%);transition:0.3s;}
+.popup.active .popup-content{transform:translateY(0);}
+input,textarea{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ccc;font-size:1rem;}
+button{background:var(--primary);color:var(--gold);border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;width:100%;margin-top:10px;}
+@media(min-width:768px){.popup-content{max-width:500px;} header{font-size:2rem;}}
 </style>
 </head>
 <body>
 
 <div class="app">
-    <header>
-        SPC IT CLUB APP
-        <button style="position:absolute; top:14px; right:14px;" onclick="openAdminLogin()">Settings</button>
-    </header>
-
-    <div class="content">
-        <h2>Announcements</h2>
-        <div id="announcementsContainer"></div>
-    </div>
+<header>
+<h1 id="appButton">SPC IT CLUB APP</h1>
+</header>
+<div class="content">
+<h2>Announcements</h2>
+<div id="announcementsContainer"></div>
+</div>
 </div>
 
-<!-- Admin Login Popup -->
-<div id="adminLoginPopup" class="popup">
-    <div class="popup-content">
-        <h3>Admin Login</h3>
-        <input type="password" id="adminPassword" placeholder="Enter Admin Password">
-        <button onclick="loginAdmin()">Login</button>
-        <button onclick="closePopup('adminLoginPopup')">Cancel</button>
-    </div>
+<!-- Admin Login -->
+<div id="adminLogin" class="popup">
+<div class="popup-content">
+<h3>Admin Login</h3>
+<input type="password" id="adminPassword" placeholder="Enter password">
+<button id="loginBtn">Login</button>
+<button onclick="closePopup('adminLogin')">Cancel</button>
+</div>
 </div>
 
-<!-- Post Announcement Popup -->
-<div id="postAnnouncementPopup" class="popup">
-    <div class="popup-content">
-        <h3>Post Announcement</h3>
-        <textarea id="announcementInput" rows="3" placeholder="Type announcement..."></textarea>
-        <button onclick="postAnnouncement()">Post</button>
-        <button onclick="closePopup('postAnnouncementPopup')">Cancel</button>
-    </div>
+<!-- Post Popup -->
+<div id="postPopup" class="popup">
+<div class="popup-content">
+<h3 id="postTitle">New Announcement</h3>
+<input type="text" id="titleInput" placeholder="Title">
+<textarea id="contentInput" rows="3" placeholder="Announcement text"></textarea>
+<input type="file" id="thumbnailInput" accept="image/*">
+<button id="savePostBtn">Send</button>
+<button onclick="closePopup('postPopup')">Cancel</button>
+</div>
 </div>
 
-<!-- Firebase Modular SDK -->
 <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, query, orderByKey } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDiN7DkL1KwVsntRjDkU3dHAnOp1zmwNoI",
-      authDomain: "spcitapp.firebaseapp.com",
-      projectId: "spcitapp",
-      storageBucket: "spcitapp.firebasestorage.app",
-      messagingSenderId: "713788616271",
-      appId: "1:713788616271:web:e44c20b347a680c1a5043a"
-    };
+/* Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyDiN7DkL1KwVsntRjDkU3dHAnOp1zmwNoI",
+  authDomain: "spcitapp.firebaseapp.com",
+  projectId: "spcitapp",
+  storageBucket: "spcitapp.firebasestorage.app",
+  messagingSenderId: "713788616271",
+  appId: "1:713788616271:web:e44c20b347a680c1a5043a"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+const ADMIN_PASSWORD = "admin123";
+let isAdmin = false; // Tracks admin login
+let editingId = null;
 
-    const ADMIN_PASSWORD = "admin123"; // Change this if desired
-    const announcementsContainer = document.getElementById("announcementsContainer");
+/* Popup functions */
+window.openPopup = id => document.getElementById(id).classList.add("active");
+window.closePopup = id => document.getElementById(id).classList.remove("active");
 
-    function openAdminLogin() { document.getElementById('adminLoginPopup').style.display = 'flex'; }
-    function closePopup(id) { document.getElementById(id).style.display = 'none'; }
+/* Secret header button triggers admin login */
+document.getElementById("appButton").addEventListener("click", () => openPopup('adminLogin'));
 
-    function loginAdmin() {
-        const pw = document.getElementById("adminPassword").value;
-        if(pw === ADMIN_PASSWORD){
-            closePopup('adminLoginPopup');
-            document.getElementById("adminPassword").value = "";
-            document.getElementById('postAnnouncementPopup').style.display = 'flex';
-        } else { alert("Incorrect admin password!"); }
-    }
+/* Admin login */
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const pass = document.getElementById("adminPassword").value;
+  if(pass === ADMIN_PASSWORD){
+    isAdmin = true; // Admin is now logged in
+    closePopup('adminLogin');
+    openPostPopup(); // Optional: open new post popup
+    renderAnnouncements(); // Show admin controls immediately
+  } else alert("Wrong password");
+});
 
-    function postAnnouncement() {
-        const text = document.getElementById("announcementInput").value.trim();
-        if(text){
-            const newPostRef = push(ref(db, 'announcements'));
-            set(newPostRef, { text: text, date: new Date().toLocaleString() });
-            document.getElementById("announcementInput").value = "";
-            closePopup('postAnnouncementPopup');
-        } else { alert("Please write something!"); }
-    }
+/* Open Post Popup */
+function openPostPopup(id=null){
+  editingId = id;
+  document.getElementById("postTitle").innerText = id ? "Edit Announcement" : "New Announcement";
+  document.getElementById("titleInput").value = "";
+  document.getElementById("contentInput").value = "";
 
-    function loadAnnouncements() {
-        const announcementsQuery = query(ref(db, 'announcements'), orderByKey());
-        onValue(announcementsQuery, (snapshot) => {
-            announcementsContainer.innerHTML = "";
-            if(!snapshot.exists()) {
-                announcementsContainer.innerHTML = "<p>No announcements yet.</p>";
-                return;
-            }
-            snapshot.forEach((childSnapshot) => {
-                const a = childSnapshot.val();
-                const div = document.createElement("div");
-                div.className = "announcement";
-                div.innerHTML = `<strong>${a.date}</strong><br>${a.text}`;
-                announcementsContainer.prepend(div);
-            });
-        });
-    }
+  if(id){
+    getDocs(collection(db,"announcements")).then(query=>{
+      query.forEach(docSnap=>{
+        if(docSnap.id === id){
+          const data = docSnap.data();
+          document.getElementById("titleInput").value = data.title;
+          document.getElementById("contentInput").value = data.content;
+        }
+      });
+    });
+  }
+  openPopup('postPopup');
+}
 
-    loadAnnouncements();
+/* Save Post */
+document.getElementById("savePostBtn").addEventListener("click", async ()=>{
+  if(!isAdmin) return alert("You must be logged in as admin!");
+
+  const title = document.getElementById("titleInput").value.trim();
+  const content = document.getElementById("contentInput").value.trim();
+  const file = document.getElementById("thumbnailInput").files[0];
+
+  if(!title || !content) return alert("Title and content required");
+
+  let imageUrl = null;
+  if(file){
+    const storageRef = ref(storage,'thumbnails/'+file.name+Date.now());
+    await uploadBytes(storageRef,file);
+    imageUrl = await getDownloadURL(storageRef);
+  }
+
+  if(editingId){
+    await updateDoc(doc(db,"announcements",editingId),{title,content,image:imageUrl,date:new Date().toLocaleString()});
+  } else{
+    await addDoc(collection(db,"announcements"),{title,content,image:imageUrl,date:new Date().toLocaleString()});
+  }
+
+  closePopup('postPopup');
+});
+
+/* Delete Post */
+window.deletePost = async function(id){
+  if(!isAdmin) return alert("You must be logged in as admin!");
+  if(!confirm("Delete this post?")) return;
+  await deleteDoc(doc(db,"announcements",id));
+}
+
+/* Real-time announcements with admin controls */
+const announcementsContainer = document.getElementById("announcementsContainer");
+
+function renderAnnouncements(){
+  onSnapshot(collection(db,"announcements"), snapshot=>{
+    announcementsContainer.innerHTML="";
+    snapshot.forEach(docSnap=>{
+      const post = docSnap.data();
+      const id = docSnap.id;
+      const div = document.createElement("div");
+      div.className = "announcement";
+      div.innerHTML = `
+        ${post.image?`<img src="${post.image}">`:""}
+        <h3>${post.title}</h3>
+        <p>${post.content}</p>
+        <small>${post.date}</small>
+        ${isAdmin?`<div class="admin-controls">
+          <button onclick="openPostPopup('${id}')">Edit</button>
+          <button onclick="deletePost('${id}')">Delete</button>
+        </div>`:""}
+      `;
+      announcementsContainer.appendChild(div);
+    });
+  });
+}
+
+// Start real-time listener
+renderAnnouncements();
 </script>
-
 </body>
 </html>
