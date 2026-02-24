@@ -10,7 +10,7 @@ body{margin:0;font-family:'Segoe UI',sans-serif;background:#f4f4f4;}
 .app{max-width:800px;margin:auto;min-height:100vh;background:white;border-radius:16px;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.1);position:relative;}
 header{
   display:flex;
-  justify-content:center;
+  flex-direction:column;
   align-items:center;
   background:var(--primary);
   color:var(--gold);
@@ -25,16 +25,47 @@ header h1#appButton{
   cursor:pointer;
   user-select:none;
   transition:transform 0.2s;
-  font-size: clamp(1.5rem, 5vw, 2.5rem); /* Responsive font size */
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
 }
 header h1#appButton:hover{transform:scale(1.05);}
-.content{padding:20px;text-align:center;}
+
+/* Navbar styling */
+.navbar{
+  display:flex;
+  justify-content:space-around;
+  width:100%;
+  margin-top:15px;
+}
+.navbar button{
+  background:var(--gold);
+  color:var(--primary);
+  border:none;
+  padding:10px 15px;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  flex:1;
+  margin:0 5px;
+  transition: transform 0.2s, background 0.2s;
+}
+.navbar button:hover{transform:scale(1.05);}
+.navbar button.active{
+  background:#ccaa00; /* Darker gold for selected button */
+  color:var(--primary);
+}
+
+/* Pages styling */
+.page{display:none;padding:20px;}
+.page.active{display:block;}
+
 #announcementsContainer{text-align:left;}
 .announcement{background:var(--gold);color:var(--primary);padding:15px;border-radius:14px;margin:15px 0;}
 .announcement img{width:100%;border-radius:10px;margin-bottom:10px;}
 .announcement h3{margin:0 0 5px 0;}
 .admin-controls{margin-top:10px;}
 .admin-controls button{padding:6px 10px;margin-right:5px;font-size:0.8rem;}
+iframe{width:100%;height:80vh;border:none;border-radius:10px;}
+
 .popup{position:fixed;inset:0;backdrop-filter:blur(10px);background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:flex-end;opacity:0;pointer-events:none;transition:0.3s;z-index:100;}
 .popup.active{opacity:1;pointer-events:all;}
 .popup-content{width:90%;max-width:480px;background:white;border-radius:20px 20px 0 0;padding:20px;transform:translateY(100%);transition:0.3s;}
@@ -51,10 +82,36 @@ button{background:var(--primary);color:var(--gold);border:none;padding:12px;bord
 <div class="app">
 <header>
 <h1 id="appButton">SPC IT CLUB APP</h1>
+
+<!-- Navbar -->
+<div class="navbar">
+  <button data-page="homePage">Home</button>
+  <button data-page="announcementsPage">Announcements</button>
+  <button data-page="websitePage">Website</button>
+  <button data-page="servicesPage">Services</button>
+</div>
+
 </header>
-<div class="content">
+
+<!-- Pages -->
+<div id="homePage" class="page active">
+<h2>Welcome to SPC IT CLUB!</h2>
+<p>This is the Home page. Explore the announcements, check out our website, and learn about our services!</p>
+</div>
+
+<div id="announcementsPage" class="page">
 <h2>Announcements</h2>
 <div id="announcementsContainer"></div>
+</div>
+
+<div id="websitePage" class="page">
+<h2>Our Website</h2>
+<iframe src="https://sites.google.com/view/spc-student-it-club" title="SPC IT CLUB Website"></iframe>
+</div>
+
+<div id="servicesPage" class="page">
+<h2>Services</h2>
+<p>Services page coming soon!</p>
 </div>
 </div>
 
@@ -107,6 +164,24 @@ window.closePopup = id => document.getElementById(id).classList.remove("active")
 
 document.getElementById("appButton").addEventListener("click", () => openPopup('adminLogin'));
 
+/* Page navigation */
+const navbarButtons = document.querySelectorAll('.navbar button');
+function showPage(pageId){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+
+  // Highlight active navbar button
+  navbarButtons.forEach(btn=>btn.classList.remove('active'));
+  const activeBtn = document.querySelector(`.navbar button[data-page="${pageId}"]`);
+  if(activeBtn) activeBtn.classList.add('active');
+}
+
+// Attach click events
+navbarButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=> showPage(btn.dataset.page));
+});
+
+/* Admin login */
 document.getElementById("loginBtn").addEventListener("click", async () => {
   const pass = document.getElementById("adminPassword").value;
   if(pass === ADMIN_PASSWORD){
@@ -117,6 +192,7 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
   } else alert("Wrong password");
 });
 
+/* Open Post Popup */
 function openPostPopup(id=null){
   editingId = id;
   document.getElementById("postTitle").innerText = id ? "Edit Announcement" : "New Announcement";
@@ -137,13 +213,12 @@ function openPostPopup(id=null){
   openPopup('postPopup');
 }
 
+/* Save Post */
 document.getElementById("savePostBtn").addEventListener("click", async ()=>{
   if(!isAdmin) return alert("You must be logged in as admin!");
-
   const title = document.getElementById("titleInput").value.trim();
   const content = document.getElementById("contentInput").value.trim();
   const file = document.getElementById("thumbnailInput").files[0];
-
   if(!title || !content) return alert("Title and content required");
 
   let imageUrl = null;
@@ -162,17 +237,19 @@ document.getElementById("savePostBtn").addEventListener("click", async ()=>{
   closePopup('postPopup');
 });
 
+/* Delete Post */
 window.deletePost = async function(id){
   if(!isAdmin) return alert("You must be logged in as admin!");
   if(!confirm("Delete this post?")) return;
   await deleteDoc(doc(db,"announcements",id));
 }
 
+/* Announcements rendering */
 const announcementsContainer = document.getElementById("announcementsContainer");
 
 function renderAnnouncements(){
   onSnapshot(collection(db,"announcements"), snapshot=>{
-    announcementsContainer.innerHTML="";
+    announcementsContainer.innerHTML = "";
     snapshot.forEach(docSnap=>{
       const post = docSnap.data();
       const id = docSnap.id;
@@ -188,11 +265,12 @@ function renderAnnouncements(){
           <button onclick="deletePost('${id}')">Delete</button>
         </div>`:""}
       `;
-      announcementsContainer.appendChild(div);
+      announcementsContainer.prepend(div); // newest on top
     });
   });
 }
 
+// Start
 renderAnnouncements();
 </script>
 </body>
