@@ -64,7 +64,6 @@ header h1#appButton:hover{transform:scale(1.05);}
 .announcement h3{margin:0 0 5px 0;}
 .admin-controls{margin-top:10px;}
 .admin-controls button{padding:6px 10px;margin-right:5px;font-size:0.8rem;}
-iframe{width:100%;height:80vh;border:none;border-radius:10px;}
 
 .popup{position:fixed;inset:0;backdrop-filter:blur(10px);background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:flex-end;opacity:0;pointer-events:none;transition:0.3s;z-index:100;}
 .popup.active{opacity:1;pointer-events:all;}
@@ -87,7 +86,7 @@ button{background:var(--primary);color:var(--gold);border:none;padding:12px;bord
 <div class="navbar">
   <button data-page="homePage">Home</button>
   <button data-page="announcementsPage">Announcements</button>
-  <button data-page="websitePage">Website</button>
+  <button id="websiteButton">Website</button>
   <button data-page="servicesPage">Services</button>
 </div>
 
@@ -102,11 +101,6 @@ button{background:var(--primary);color:var(--gold);border:none;padding:12px;bord
 <div id="announcementsPage" class="page">
 <h2>Announcements</h2>
 <div id="announcementsContainer"></div>
-</div>
-
-<div id="websitePage" class="page">
-<h2>Our Website</h2>
-<iframe src="https://sites.google.com/view/spc-student-it-club" title="SPC IT CLUB Website"></iframe>
 </div>
 
 <div id="servicesPage" class="page">
@@ -166,9 +160,11 @@ document.getElementById("appButton").addEventListener("click", () => openPopup('
 
 /* Page navigation */
 const navbarButtons = document.querySelectorAll('.navbar button');
+
 function showPage(pageId){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
+  const page = document.getElementById(pageId);
+  if(page) page.classList.add('active');
 
   // Highlight active navbar button
   navbarButtons.forEach(btn=>btn.classList.remove('active'));
@@ -178,7 +174,11 @@ function showPage(pageId){
 
 // Attach click events
 navbarButtons.forEach(btn=>{
-  btn.addEventListener('click', ()=> showPage(btn.dataset.page));
+  if(btn.id === "websiteButton"){
+    btn.addEventListener('click', ()=> window.open('https://sites.google.com/view/spc-student-it-club','_blank'));
+  } else {
+    btn.addEventListener('click', ()=> showPage(btn.dataset.page));
+  }
 });
 
 /* Admin login */
