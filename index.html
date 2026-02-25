@@ -94,14 +94,14 @@ button{background:var(--primary);color:var(--gold);border:none;padding:12px;bord
   <button data-page="homePage">Home</button>
   <button data-page="announcementsPage">Announcements</button>
   <button id="websiteButton">Website</button>
-  <button data-page="servicesPage">Services</button>
+  <button data-page="chatPage">Chat</button> <!-- Renamed from Services -->
 </div>
 </header>
 
 <!-- Pages -->
 <div id="homePage" class="page active">
   <h2>Welcome to SPC IT CLUB!</h2>
-  <p>This is the Home page. Explore the announcements, check out our website, and learn about our services!</p>
+  <p>This is the Home page. Explore the announcements, check out our website, and learn about our chat feature!</p>
   <img src="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true" alt="SPC IT CLUB Logo">
 </div>
 
@@ -110,9 +110,9 @@ button{background:var(--primary);color:var(--gold);border:none;padding:12px;bord
 <div id="announcementsContainer"></div>
 </div>
 
-<div id="servicesPage" class="page">
-<h2>Services</h2>
-<p>Services page coming soon!</p>
+<div id="chatPage" class="page">
+<h2>Chat</h2>
+<p>Chat page coming soon!</p>
 </div>
 </div>
 
@@ -150,7 +150,7 @@ const firebaseConfig = {
   projectId: "spcitapp",
   storageBucket: "spcitapp.firebasestorage.app",
   messagingSenderId: "713788616271",
-  appId: "1:713788616271:web=e44c20b347a680c1a5043a"
+  appId: "1:713788616271:web:e44c20b347a680c1a5043a"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
