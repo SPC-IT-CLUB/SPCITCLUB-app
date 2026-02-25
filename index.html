@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPC IT CLUB APP</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true">
+
 <style>
 :root { --primary:#800020; --gold:#FFD100; }
 body{margin:0;font-family:'Segoe UI',sans-serif;background:#f4f4f4;}
@@ -58,6 +62,9 @@ header h1#appButton:hover{transform:scale(1.05);}
 .page{display:none;padding:20px;}
 .page.active{display:block;}
 
+#homePage{text-align:center;}
+#homePage img{margin-top:20px; max-width:50%; height:auto; border-radius:10px;}
+
 #announcementsContainer{text-align:left;}
 .announcement{background:var(--gold);color:var(--primary);padding:15px;border-radius:14px;margin:15px 0;}
 .announcement img{width:100%;border-radius:10px;margin-bottom:10px;}
@@ -89,13 +96,13 @@ button{background:var(--primary);color:var(--gold);border:none;padding:12px;bord
   <button id="websiteButton">Website</button>
   <button data-page="servicesPage">Services</button>
 </div>
-
 </header>
 
 <!-- Pages -->
 <div id="homePage" class="page active">
-<h2>Welcome to SPC IT CLUB!</h2>
-<p>This is the Home page. Explore the announcements, check out our website, and learn about our services!</p>
+  <h2>Welcome to SPC IT CLUB!</h2>
+  <p>This is the Home page. Explore the announcements, check out our website, and learn about our services!</p>
+  <img src="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true" alt="SPC IT CLUB Logo">
 </div>
 
 <div id="announcementsPage" class="page">
@@ -143,7 +150,7 @@ const firebaseConfig = {
   projectId: "spcitapp",
   storageBucket: "spcitapp.firebasestorage.app",
   messagingSenderId: "713788616271",
-  appId: "1:713788616271:web:e44c20b347a680c1a5043a"
+  appId: "1:713788616271:web=e44c20b347a680c1a5043a"
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -175,7 +182,7 @@ function showPage(pageId){
 // Attach click events
 navbarButtons.forEach(btn=>{
   if(btn.id === "websiteButton"){
-    btn.addEventListener('click', ()=> window.open('https://www.spcitclub.me','_blank'));
+    btn.addEventListener('click', ()=> window.open('https://sites.google.com/view/spc-student-it-club','_blank'));
   } else {
     btn.addEventListener('click', ()=> showPage(btn.dataset.page));
   }
@@ -265,7 +272,7 @@ function renderAnnouncements(){
           <button onclick="deletePost('${id}')">Delete</button>
         </div>`:""}
       `;
-      announcementsContainer.prepend(div); // newest on top
+      announcementsContainer.prepend(div);
     });
   });
 }
