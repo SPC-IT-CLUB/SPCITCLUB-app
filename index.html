@@ -4,146 +4,532 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SPC IT CLUB APP</title>
-
-<!-- Favicon -->
 <link rel="icon" type="image/png" href="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-:root { --primary:#800020; --gold:#FFD100; }
-body{margin:0;font-family:'Segoe UI',sans-serif;background:#f4f4f4;}
-.app{max-width:800px;margin:auto;min-height:100vh;background:white;border-radius:16px;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.1);position:relative;}
-header{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  background:var(--primary);
-  color:var(--gold);
-  padding:20px;
-  font-weight:bold;
-  position:relative;
-}
-header h1#appButton{
-  flex:1;
-  text-align:center;
-  margin:0;
-  cursor:pointer;
-  user-select:none;
-  transition:transform 0.2s;
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-}
-header h1#appButton:hover{transform:scale(1.05);}
-
-/* Navbar styling */
-.navbar{
-  display:flex;
-  justify-content:space-around;
-  width:100%;
-  margin-top:15px;
-}
-.navbar button{
-  background:var(--gold);
-  color:var(--primary);
-  border:none;
-  padding:10px 15px;
-  border-radius:10px;
-  font-weight:bold;
-  cursor:pointer;
-  flex:1;
-  margin:0 5px;
-  transition: transform 0.2s, background 0.2s;
-}
-.navbar button:hover{transform:scale(1.05);}
-.navbar button.active{
-  background:#ccaa00; /* Darker gold for selected button */
-  color:var(--primary);
+:root {
+  --crimson: #800020;
+  --crimson-dark: #5c0016;
+  --gold: #FFD100;
+  --gold-soft: rgba(255,209,0,0.13);
+  --bg: #f9f6f0;
+  --surface: #fff;
+  --surface2: #fdf9f3;
+  --border: #ede5d8;
+  --text: #1a0a10;
+  --muted: #8c6a72;
+  --green: #16a34a;
+  --red: #dc2626;
+  --sans: 'Syne', sans-serif;
+  --mono: 'Space Mono', monospace;
+  --content: 680px;
+  --pad: 24px;
 }
 
-/* Pages styling */
-.page{display:none;padding:20px;}
-.page.active{display:block;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-#homePage{text-align:center;}
-#homePage img{margin-top:20px; max-width:50%; height:auto; border-radius:10px;}
+html, body { height: 100%; }
 
-#announcementsContainer{text-align:left;}
-.announcement{background:var(--gold);color:var(--primary);padding:15px;border-radius:14px;margin:15px 0;}
-.announcement img{width:100%;border-radius:10px;margin-bottom:10px;}
-.announcement h3{margin:0 0 5px 0;}
-.admin-controls{margin-top:10px;}
-.admin-controls button{padding:6px 10px;margin-right:5px;font-size:0.8rem;}
-
-.popup{position:fixed;inset:0;backdrop-filter:blur(10px);background:rgba(0,0,0,0.3);display:flex;justify-content:center;align-items:flex-end;opacity:0;pointer-events:none;transition:0.3s;z-index:100;}
-.popup.active{opacity:1;pointer-events:all;}
-.popup-content{width:90%;max-width:480px;background:white;border-radius:20px 20px 0 0;padding:20px;transform:translateY(100%);transition:0.3s;}
-.popup.active .popup-content{transform:translateY(0);}
-input,textarea{width:100%;padding:12px;margin:8px 0;border-radius:10px;border:1px solid #ccc;font-size:1rem;}
-button{background:var(--primary);color:var(--gold);border:none;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer;width:100%;margin-top:10px;}
-@media(min-width:768px){
-  .popup-content{max-width:500px;}
+body {
+  font-family: var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100%;
 }
+
+/* everything full width, content constrained inside with margin:auto */
+.inner {
+  width: 100%;
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 0 var(--pad);
+}
+
+/* ─────────────────────────────────────────
+   AUTH + PENDING  (full-page centred)
+───────────────────────────────────────── */
+.full-page {
+  display: none;
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--crimson), var(--crimson-dark));
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 40px var(--pad);
+}
+.full-page.show { display: flex; }
+
+.fp-logo { width: 76px; height: 76px; border-radius: 14px; border: 3px solid rgba(255,209,0,.35); object-fit: cover; margin-bottom: 14px; }
+.fp-title { font-size: 24px; font-weight: 800; color: var(--gold); letter-spacing: -.01em; margin-bottom: 3px; }
+.fp-sub   { font-family: var(--mono); font-size: 9px; color: rgba(255,209,0,.5); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 28px; }
+
+/* auth card */
+.auth-card {
+  background: var(--surface);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.28);
+}
+.auth-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.auth-tab  { flex: 1; padding: 14px 8px; background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: all .15s; }
+.auth-tab.active { color: var(--crimson); border-bottom-color: var(--crimson); }
+.auth-panel { display: none; padding: 22px 22px 26px; }
+.auth-panel.active { display: block; }
+.auth-card h3 { font-size: 15px; font-weight: 800; margin-bottom: 4px; font-family: var(--sans); }
+.auth-card .hint { font-size: 12px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; font-family: var(--sans); }
+
+/* pending card */
+.pending-card { text-align: center; }
+.pending-card .icon { font-size: 48px; margin-bottom: 14px; }
+.pending-card h2   { font-size: 20px; font-weight: 800; color: var(--gold); margin-bottom: 10px; }
+.pending-card p    { font-size: 13px; color: rgba(255,209,0,.65); max-width: 260px; line-height: 1.7; margin-bottom: 22px; }
+.btn-ghost-gold { font-family: var(--mono); font-size: 11px; color: rgba(255,209,0,.6); background: none; border: 1px solid rgba(255,209,0,.25); border-radius: 20px; padding: 6px 18px; cursor: pointer; letter-spacing: .06em; }
+.btn-ghost-gold:hover { color: var(--gold); border-color: rgba(255,209,0,.5); }
+
+/* ─────────────────────────────────────────
+   MAIN APP
+───────────────────────────────────────── */
+#appScreen { display: none; flex-direction: column; min-height: 100vh; }
+#appScreen.show { display: flex; }
+
+/* HEADER */
+header {
+  background: var(--crimson);
+  position: sticky; top: 0; z-index: 50;
+  width: 100%;
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px var(--pad) 10px;
+  gap: 12px;
+}
+.logo-wrap { display: flex; align-items: center; gap: 10px; }
+.logo-img  { width: 36px; height: 36px; border-radius: 8px; border: 2px solid rgba(255,209,0,.4); object-fit: cover; }
+.logo-title { font-size: 15px; font-weight: 800; color: var(--gold); line-height: 1.1; }
+.logo-sub   { font-family: var(--mono); font-size: 8px; color: rgba(255,209,0,.45); letter-spacing: .1em; text-transform: uppercase; }
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.user-pill { font-family: var(--mono); font-size: 9px; color: rgba(255,209,0,.75); background: rgba(255,209,0,.09); border: 1px solid rgba(255,209,0,.2); border-radius: 20px; padding: 4px 10px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-pill.is-admin { background: var(--gold); color: var(--crimson); font-weight: 700; }
+.btn-signout { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; background: rgba(255,209,0,.1); color: rgba(255,209,0,.7); border: 1px solid rgba(255,209,0,.2); border-radius: 20px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
+.btn-signout:hover { background: rgba(255,209,0,.2); color: var(--gold); }
+
+/* NAV */
+nav { border-top: 1px solid rgba(255,209,0,.1); }
+.nav-inner { display: flex; max-width: var(--content); margin: 0 auto; padding: 0 var(--pad); }
+.nav-btn { flex: 1; background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 11px; font-weight: 700; color: rgba(255,209,0,.5); padding: 10px 6px 8px; border-bottom: 3px solid transparent; transition: color .15s, border-color .15s; white-space: nowrap; }
+.nav-btn:hover { color: rgba(255,209,0,.85); }
+.nav-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.badge { display: inline-block; background: var(--red); color: #fff; font-size: 9px; border-radius: 10px; padding: 1px 5px; margin-left: 3px; vertical-align: top; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; animation: fadeUp .22s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* HOME */
+.home-hero {
+  background: linear-gradient(150deg, var(--crimson), var(--crimson-dark));
+  padding: 48px var(--pad) 56px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.home-hero::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at 20% 60%, rgba(255,209,0,.07), transparent 55%); }
+.hero-logo { width: 82px; height: 82px; border-radius: 15px; border: 3px solid rgba(255,209,0,.3); object-fit: cover; margin-bottom: 14px; position: relative; }
+.home-hero h1 { font-size: clamp(26px, 5vw, 44px); font-weight: 800; color: var(--gold); letter-spacing: -.02em; position: relative; }
+.home-hero p  { font-size: 14px; color: rgba(255,209,0,.6); margin-top: 8px; line-height: 1.7; position: relative; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 28px var(--pad);
+  max-width: var(--content);
+  margin: 0 auto;
+}
+@media (max-width: 480px) { .cards { grid-template-columns: 1fr; gap: 10px; padding: 20px var(--pad); } }
+
+.card { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 20px 16px; cursor: pointer; transition: border-color .15s, transform .15s; }
+.card:hover { border-color: var(--crimson); transform: translateY(-2px); }
+.card-icon { font-size: 24px; margin-bottom: 9px; }
+.card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; font-family: var(--sans); }
+.card p  { font-size: 12px; color: var(--muted); line-height: 1.6; font-family: var(--sans); }
+
+/* PAGE CONTENT WRAPPER */
+.page-content { max-width: var(--content); margin: 0 auto; padding: 26px var(--pad); }
+.page-title { font-size: 20px; font-weight: 800; margin-bottom: 18px; font-family: var(--sans); }
+.page-title span { color: var(--crimson); }
+
+/* ANNOUNCEMENTS */
+.ann-list { display: flex; flex-direction: column; gap: 12px; }
+.ann-empty { text-align: center; color: var(--muted); font-family: var(--mono); font-size: 12px; padding: 48px 20px; border: 1px dashed var(--border); border-radius: 14px; }
+.ann-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.ann-card img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+.ann-body { padding: 16px 18px; }
+.ann-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 7px; display: flex; align-items: center; gap: 7px; }
+.ann-badge { background: var(--gold-soft); color: var(--crimson); border: 1px solid rgba(128,0,32,.15); font-size: 9px; font-weight: 700; border-radius: 4px; padding: 1px 6px; }
+.ann-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.ann-card p  { font-size: 13px; color: #3d2530; line-height: 1.7; white-space: pre-wrap; }
+.ann-admin-btns { display: none; gap: 8px; margin-top: 10px; }
+.is-admin .ann-admin-btns { display: flex; }
+
+/* WEBSITE */
+.website-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 48px 28px; text-align: center; }
+.website-icon { font-size: 48px; margin-bottom: 14px; }
+.website-url  { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--crimson); margin-bottom: 12px; }
+.website-card p { font-size: 13px; color: var(--muted); line-height: 1.7; max-width: 300px; margin: 0 auto 24px; }
+.visit-btn { display: inline-block; background: var(--crimson); color: var(--gold); font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; padding: 13px 28px; border-radius: 10px; }
+.visit-btn:hover { opacity: .85; }
+
+/* CHAT */
+#chatPage { display: none; flex-direction: column; height: calc(100vh - 93px); }
+#chatPage.active { display: flex; }
+.chat-layout { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px var(--pad);
+  display: flex; flex-direction: column; gap: 10px;
+  max-width: var(--content); width: 100%; margin: 0 auto;
+}
+.chat-loading { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: center; padding: 40px 0; }
+.chat-day-label {
+  text-align: center; font-family: var(--mono); font-size: 10px;
+  color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+  margin: 8px 0 4px;
+}
+.chat-bubble-wrap { display: flex; flex-direction: column; max-width: 75%; }
+.chat-bubble-wrap.mine  { align-self: flex-end; align-items: flex-end; }
+.chat-bubble-wrap.theirs { align-self: flex-start; align-items: flex-start; }
+.chat-meta {
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  margin-bottom: 3px; display: flex; align-items: center; gap: 6px;
+}
+.chat-username { font-weight: 700; color: var(--crimson); }
+.chat-bubble {
+  padding: 10px 14px; border-radius: 16px;
+  font-size: 14px; font-family: var(--sans); line-height: 1.5;
+  word-break: break-word; white-space: pre-wrap;
+}
+.mine  .chat-bubble { background: var(--crimson); color: var(--gold); border-radius: 16px 16px 4px 16px; }
+.theirs .chat-bubble { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; }
+.admin-msg .chat-username::after { content: ' ★'; font-size: 9px; color: var(--gold); }
+
+.chat-input-bar {
+  border-top: 1px solid var(--border);
+  padding: 12px var(--pad);
+  display: flex; gap: 10px; align-items: center;
+  background: var(--surface);
+  max-width: 100%;
+}
+.chat-input-bar input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 24px; padding: 10px 16px;
+  font-family: var(--sans); font-size: 14px; color: var(--text);
+  outline: none; transition: border-color .2s;
+}
+.chat-input-bar input:focus { border-color: var(--crimson); }
+.soon-tag { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; background: rgba(128,0,32,.08); color: var(--crimson); border: 1px solid rgba(128,0,32,.2); border-radius: 20px; padding: 4px 14px; text-transform: uppercase; }
+
+/* ADMIN PANEL */
+.section-label { font-family: var(--mono); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 22px 0 10px; }
+.section-label:first-child { margin-top: 0; }
+.request-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.req-info { flex: 1; min-width: 0; }
+.req-name  { font-size: 14px; font-weight: 700; font-family: var(--sans); }
+.req-email { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.req-btns  { display: flex; gap: 6px; flex-wrap: wrap; }
+.member-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.role-tag  { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 10px; flex-shrink: 0; }
+.role-admin { background: var(--gold); color: var(--crimson); }
+.role-user  { background: rgba(128,0,32,.08); color: var(--crimson); border: 1px solid rgba(128,0,32,.15); }
+.no-items { font-family: var(--mono); font-size: 12px; color: var(--muted); padding: 20px; text-align: center; border: 1px dashed var(--border); border-radius: 12px; }
+
+/* BUTTONS */
+.btn-sm { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 12px; border-radius: 7px; border: none; cursor: pointer; }
+.btn-edit    { background: var(--gold-soft); color: var(--crimson); border: 1px solid rgba(128,0,32,.2); }
+.btn-del     { background: rgba(220,38,38,.08); color: var(--red); border: 1px solid rgba(220,38,38,.2); }
+.btn-approve { background: rgba(22,163,74,.1); color: var(--green); border: 1px solid rgba(22,163,74,.25); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+.btn-reject  { background: rgba(220,38,38,.08); color: var(--red); border: 1px solid rgba(220,38,38,.2); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+.btn-promote { background: var(--crimson); color: var(--gold); border: 2px solid var(--gold); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 6px 14px; border-radius: 7px; cursor: pointer; transition: background .15s, color .15s; }
+.btn-promote:hover { background: var(--gold); color: var(--crimson); }
+.btn-disable { background: rgba(220,38,38,.08); color: var(--red); border: 1px solid rgba(220,38,38,.25); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+.btn-disable:hover { background: rgba(220,38,38,.18); }
+.btn-enable { background: rgba(22,163,74,.1); color: var(--green); border: 1px solid rgba(22,163,74,.3); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+.btn-enable:hover { background: rgba(22,163,74,.2); }
+.btn-delete-acc { background: rgba(220,38,38,.12); color: var(--red); border: 1px solid rgba(220,38,38,.3); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+.btn-delete-acc:hover { background: rgba(220,38,38,.25); }
+.member-disabled { opacity: .55; }
+.tag-disabled { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: rgba(220,38,38,.1); color: var(--red); border: 1px solid rgba(220,38,38,.2); border-radius: 4px; padding: 1px 6px; vertical-align: middle; margin-left: 6px; }
+.btn-new-ann { display: block; width: 100%; background: var(--crimson); color: var(--gold); border: none; border-radius: 10px; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 14px; cursor: pointer; text-align: center; }
+.btn-new-ann:hover { opacity: .88; }
+.create-acc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-create-acc { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; cursor: pointer; text-align: center; transition: border-color .15s, transform .15s; }
+.btn-create-acc:hover { border-color: var(--crimson); transform: translateY(-2px); }
+.create-acc-icon  { font-size: 26px; margin-bottom: 8px; }
+.create-acc-label { font-family: var(--sans); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.create-acc-sub   { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+
+
+/* SHARED FORM FIELDS */
+.field { margin-bottom: 13px; }
+.field label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.field input, .field textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-family: var(--sans); font-size: 14px; padding: 10px 13px; outline: none; transition: border-color .2s; }
+.field input[type=file] { font-size: 12px; }
+.field textarea { resize: vertical; min-height: 85px; }
+.field input:focus, .field textarea:focus { border-color: var(--crimson); }
+.form-err { font-family: var(--mono); font-size: 11px; color: var(--red); margin-bottom: 10px; display: none; padding: 8px 12px; background: rgba(220,38,38,.06); border-radius: 8px; border: 1px solid rgba(220,38,38,.15); }
+.form-ok  { font-family: var(--mono); font-size: 11px; color: var(--green); margin-bottom: 10px; display: none; padding: 8px 12px; background: rgba(22,163,74,.06); border-radius: 8px; border: 1px solid rgba(22,163,74,.15); }
+.btn-full { width: 100%; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 13px; border-radius: 9px; border: none; cursor: pointer; background: var(--crimson); color: var(--gold); margin-top: 4px; }
+.btn-full:disabled { opacity: .6; cursor: default; }
+
+/* OVERLAY / SHEET */
+.overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.45); backdrop-filter: blur(6px); display: none; align-items: flex-end; justify-content: center; }
+.overlay.open { display: flex; }
+.sheet { width: 100%; max-width: 520px; background: var(--surface); border-radius: 22px 22px 0 0; padding: 24px 24px 36px; animation: slideUp .26s cubic-bezier(.32,.72,0,1); }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.handle { width: 38px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.sheet h2 { font-size: 18px; font-weight: 800; margin-bottom: 4px; font-family: var(--sans); }
+.sheet .sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; font-family: var(--sans); }
+.sheet-btns { display: flex; gap: 10px; margin-top: 6px; }
+.btn-main   { flex: 1; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 12px; border-radius: 9px; border: none; cursor: pointer; background: var(--crimson); color: var(--gold); }
+.btn-main:disabled { opacity: .6; }
+.btn-cancel { font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 12px 16px; border-radius: 9px; cursor: pointer; background: none; color: var(--muted); border: 1px solid var(--border); }
 </style>
 </head>
 <body>
 
-<div class="app">
-<header>
-<h1 id="appButton">SPC IT CLUB APP</h1>
-
-<!-- Navbar -->
-<div class="navbar">
-  <button data-page="homePage">Home</button>
-  <button data-page="announcementsPage">Announcements</button>
-  <button id="websiteButton">Website</button>
-  <button data-page="chatPage">Chat</button> <!-- Renamed from Services -->
-</div>
-</header>
-
-<!-- Pages -->
-<div id="homePage" class="page active">
-  <h2>Welcome to SPC IT CLUB!</h2>
-  <p>This is the Home page. Explore the announcements, check out our website, and learn about our chat feature!</p>
-  <img src="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true" alt="SPC IT CLUB Logo">
+<!-- ── AUTH ── -->
+<div id="authScreen" class="full-page">
+  <img class="fp-logo" src="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true" alt="SPC IT Club">
+  <div class="fp-title">SPC IT CLUB</div>
+  <div class="fp-sub">St Peter's College</div>
+  <div class="auth-card">
+    <div style="padding: 24px 24px 28px;">
+      <h3>Welcome back</h3>
+      <p class="hint">Sign in with your username and password.</p>
+      <div class="field"><label>Username</label><input type="text" id="loginUsername" placeholder="Username" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPw" placeholder="••••••••"></div>
+      <div class="form-err" id="loginErr"></div>
+      <button class="btn-full" id="btnLogin">Sign In</button>
+    </div>
+  </div>
 </div>
 
-<div id="announcementsPage" class="page">
-<h2>Announcements</h2>
-<div id="announcementsContainer"></div>
+<!-- ── PENDING screen removed - accounts are auto-approved ── -->
+
+<!-- ── MAIN APP ── -->
+<div id="appScreen">
+  <header>
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <img class="logo-img" src="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true" alt="logo">
+        <div>
+          <div class="logo-title">SPC IT CLUB</div>
+          <div class="logo-sub">St Peter's College</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="user-pill" id="userPill"></span>
+        <button class="btn-signout" id="btnSignout">Sign out</button>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-inner" id="navInner">
+        <button class="nav-btn active" id="nav-home">Home</button>
+        <button class="nav-btn" id="nav-announcements">Announcements</button>
+        <button class="nav-btn" id="nav-website">Website</button>
+        <button class="nav-btn" id="nav-chat">Chat</button>
+        <button class="nav-btn" id="nav-admin" style="display:none">Admin</button>
+      </div>
+    </nav>
+  </header>
+
+  <div id="shell">
+
+    <!-- HOME -->
+    <div id="homePage" class="page active">
+      <div class="home-hero">
+        <img class="hero-logo" src="https://github.com/SPC-IT-CLUB/SPCITCLUB-app/blob/main/spc.jpg?raw=true" alt="SPC IT Club">
+        <h1>SPC IT CLUB</h1>
+        <p>Your hub for club news, events, and everything tech at St Peter's College.</p>
+      </div>
+      <div class="cards">
+        <div class="card" id="card-ann"> <div class="card-icon">📢</div><h3>Announcements</h3><p>Latest updates from the admin team.</p></div>
+        <div class="card" id="card-web"> <div class="card-icon">🌐</div><h3>Website</h3><p>Visit the official SPC IT Club website.</p></div>
+        <div class="card" id="card-chat"><div class="card-icon">💬</div><h3>Chat</h3><p>Members chat — coming soon!</p></div>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div id="announcementsPage" class="page">
+      <div class="page-content">
+        <div class="page-title">Ann<span>ouncements</span></div>
+        <div class="ann-list" id="annList"><div class="ann-empty">📭 Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- WEBSITE -->
+    <div id="websitePage" class="page">
+      <div class="page-content">
+        <div class="page-title">Our <span>Website</span></div>
+        <div class="website-card">
+          <div class="website-icon">🌐</div>
+          <div class="website-url">spcitclub.me</div>
+          <p>The official SPC IT Club website — open it in your browser to explore projects and resources.</p>
+          <a href="https://www.spcitclub.me/home" target="_blank" class="visit-btn">Visit Website ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chatPage" class="page">
+      <div class="chat-layout">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-loading">Loading messages…</div>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" id="chatInput" placeholder="Press Enter to send…" maxlength="500" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="adminPage" class="page">
+      <div class="page-content">
+        <div class="page-title">Admin <span>Panel</span></div>
+
+        <div class="section-label">Announcements</div>
+        <button class="btn-new-ann" id="btnNewAnn">＋ New Announcement</button>
+
+        <div class="section-label" style="margin-top:22px;">Create Accounts</div>
+        <div class="create-acc-row">
+          <button class="btn-create-acc" id="btnOpenIndividual">
+            <div class="create-acc-icon">👤</div>
+            <div class="create-acc-label">Individual</div>
+            <div class="create-acc-sub">Create one account</div>
+          </button>
+          <button class="btn-create-acc" id="btnOpenBulk">
+            <div class="create-acc-icon">👥</div>
+            <div class="create-acc-label">Bulk</div>
+            <div class="create-acc-sub">Create multiple at once</div>
+          </button>
+        </div>
+
+        <div class="section-label" style="margin-top:22px;">Members</div>
+        <div id="memberList"><div class="no-items">Loading…</div></div>
+
+        <!-- ROLE MAKER — superadmin only -->
+        <div id="roleMakerSection" style="display:none">
+          <div class="section-label" style="margin-top:22px;">Role Maker</div>
+          <div id="roleList"><div class="no-items">No custom roles yet.</div></div>
+          <button class="btn-new-ann" id="btnNewRole" style="margin-top:12px;">＋ New Role</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div id="chatPage" class="page">
-<h2>Chat</h2>
-<p>Chat page coming soon!</p>
-</div>
+
+
+<!-- ROLE MAKER SHEET -->
+<div class="overlay" id="roleOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2 id="roleSheetTitle">New Role</h2>
+    <div class="sub">Create a custom role with a name and colour.</div>
+    <div class="field"><label>Role Name</label><input type="text" id="roleNameInput" placeholder="e.g. Officer, Member, Moderator" maxlength="30"></div>
+    <div class="field">
+      <label>Colour</label>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <input type="color" id="roleColorInput" value="#800020" style="width:48px;height:40px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;">
+        <span id="roleColorPreview" style="font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:6px;font-weight:700;">Preview</span>
+      </div>
+    </div>
+    <div class="form-err" id="roleErr"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancelRole">Cancel</button>
+      <button class="btn-main"   id="btnSaveRole">Save Role</button>
+    </div>
+  </div>
 </div>
 
-<!-- Admin Login -->
-<div id="adminLogin" class="popup">
-<div class="popup-content">
-<h3>Admin Login</h3>
-<input type="password" id="adminPassword" placeholder="Enter password">
-<button id="loginBtn">Login</button>
-<button onclick="closePopup('adminLogin')">Cancel</button>
-</div>
-</div>
-
-<!-- Post Popup -->
-<div id="postPopup" class="popup">
-<div class="popup-content">
-<h3 id="postTitle">New Announcement</h3>
-<input type="text" id="titleInput" placeholder="Title">
-<textarea id="contentInput" rows="3" placeholder="Announcement text"></textarea>
-<input type="file" id="thumbnailInput" accept="image/*">
-<button id="savePostBtn">Send</button>
-<button onclick="closePopup('postPopup')">Cancel</button>
-</div>
+<!-- ASSIGN ROLE SHEET -->
+<div class="overlay" id="assignRoleOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2>Assign Role</h2>
+    <div class="sub" id="assignRoleSub">Choose a role for this member.</div>
+    <div id="assignRoleList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancelAssign">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+<!-- POST SHEET -->
+<div class="overlay" id="postOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2 id="postTitle">New Announcement</h2>
+    <div class="sub">Visible to all members immediately.</div>
+    <div class="field"><label>Title</label><input type="text" id="titleInput" placeholder="e.g. Meeting this Friday" maxlength="80"></div>
+    <div class="field"><label>Message</label><textarea id="bodyInput" rows="3" placeholder="Write your announcement…" maxlength="1000"></textarea></div>
+    <div class="field"><label>Image (optional)</label><input type="file" id="imgInput" accept="image/*"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancelPost">Cancel</button>
+      <button class="btn-main"   id="btnSavePost">Post</button>
+    </div>
+  </div>
+</div>
 
-/* Firebase Config */
+<!-- INDIVIDUAL ACCOUNT SHEET -->
+<div class="overlay" id="individualOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2>Create Account</h2>
+    <div class="sub">Creates a new member account instantly.</div>
+    <div class="field"><label>Full Name</label><input type="text" id="indName" placeholder="e.g. Juan dela Cruz"></div>
+    <div class="field"><label>Username</label><input type="text" id="indUsername" placeholder="e.g. juandc (letters & numbers only)"></div>
+    <div class="field"><label>Password</label><input type="password" id="indPassword" placeholder="Min. 6 characters"></div>
+    <div class="form-err" id="indErr"></div>
+    <div class="form-ok"  id="indOk"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancelInd">Cancel</button>
+      <button class="btn-main"   id="btnCreateInd">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- BULK ACCOUNT SHEET -->
+<div class="overlay" id="bulkOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h2>Bulk Create Accounts</h2>
+    <div class="sub">One account per line: <code style="font-family:var(--mono);background:var(--surface2);padding:1px 5px;border-radius:4px;font-size:11px;">Name, Username, Password</code></div>
+    <div class="field">
+      <label>Accounts</label>
+      <textarea id="bulkInput" rows="6" placeholder="Juan dela Cruz, juandc, pass123&#10;Maria Santos, marias, pass456&#10;Pedro Reyes, pedror, pass789" style="min-height:140px;font-family:var(--mono);font-size:12px;"></textarea>
+    </div>
+    <div class="form-err" id="bulkErr"></div>
+    <div id="bulkResults" style="display:none;max-height:160px;overflow-y:auto;margin-bottom:10px;"></div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancelBulk">Cancel</button>
+      <button class="btn-main"   id="btnCreateBulk">Create All</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">/* v2 */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getStorage, ref, uploadBytes, getDownloadURL }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
 const firebaseConfig = {
   apiKey: "AIzaSyDiN7DkL1KwVsntRjDkU3dHAnOp1zmwNoI",
   authDomain: "spcitapp.firebaseapp.com",
@@ -152,135 +538,748 @@ const firebaseConfig = {
   messagingSenderId: "713788616271",
   appId: "1:713788616271:web:e44c20b347a680c1a5043a"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app        = initializeApp(firebaseConfig);
+// Secondary app used ONLY for creating accounts — keeps admin signed in
+const appSecond  = initializeApp(firebaseConfig, 'secondary');
+const authSecond = getAuth(appSecond);
+
+const auth    = getAuth(app);
+const db      = getFirestore(app);
 const storage = getStorage(app);
 
-const ADMIN_PASSWORD = "SPC2026";
-let isAdmin = false; 
-let editingId = null;
+// Username → fake internal email (users never see this)
+const toEmail = u => u.toLowerCase().trim().replace(/[^a-z0-9]/g,'') + '@spcitclub.com';
+let currentRole     = null;
+let currentUserData = null;
+let currentUid      = null;
+let isSuperAdmin    = false;  // only username === 'admin'
+let editingId       = null;
+let editingIds      = null;
+let unsubAnn        = null;
+let unsubUsers      = null;
+let unsubChat       = null;
+let unsubRoles      = null;
+let customRoles     = {};     // id → { name, color }
 
-window.openPopup = id => document.getElementById(id).classList.add("active");
-window.closePopup = id => document.getElementById(id).classList.remove("active");
-
-document.getElementById("appButton").addEventListener("click", () => openPopup('adminLogin'));
-
-/* Page navigation */
-const navbarButtons = document.querySelectorAll('.navbar button');
-
-function showPage(pageId){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const page = document.getElementById(pageId);
-  if(page) page.classList.add('active');
-
-  // Highlight active navbar button
-  navbarButtons.forEach(btn=>btn.classList.remove('active'));
-  const activeBtn = document.querySelector(`.navbar button[data-page="${pageId}"]`);
-  if(activeBtn) activeBtn.classList.add('active');
+/* ── SCREENS ── */
+function showScreen(name) {
+  document.getElementById('authScreen').classList.toggle('show', name === 'auth');
+  const appEl = document.getElementById('appScreen');
+  appEl.style.display       = name === 'app' ? 'flex' : 'none';
+  appEl.style.flexDirection = 'column';
+  appEl.style.minHeight     = '100vh';
 }
 
-// Attach click events
-navbarButtons.forEach(btn=>{
-  if(btn.id === "websiteButton"){
-    btn.addEventListener('click', ()=> window.open('https://www.spcitclub.me/home','_blank'));
-  } else {
-    btn.addEventListener('click', ()=> showPage(btn.dataset.page));
+/* ── PAGES ── */
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  const map = { homePage:'nav-home', announcementsPage:'nav-announcements', websitePage:'nav-website', chatPage:'nav-chat', adminPage:'nav-admin' };
+  if (map[pageId]) document.getElementById(map[pageId]).classList.add('active');
+}
+
+document.getElementById('nav-home').onclick          = () => showPage('homePage');
+document.getElementById('nav-announcements').onclick = () => showPage('announcementsPage');
+document.getElementById('nav-website').onclick       = () => showPage('websitePage');
+document.getElementById('nav-chat').onclick          = () => showPage('chatPage');
+document.getElementById('nav-admin').onclick         = () => showPage('adminPage');
+document.getElementById('card-ann').onclick          = () => showPage('announcementsPage');
+document.getElementById('card-web').onclick          = () => window.open('https://www.spcitclub.me/home','_blank');
+document.getElementById('card-chat').onclick         = () => showPage('chatPage');
+
+/* ── LOGIN ── */
+document.getElementById('btnLogin').onclick = async () => {
+  const username = document.getElementById('loginUsername').value.trim();
+  const pw       = document.getElementById('loginPw').value;
+  const errEl    = document.getElementById('loginErr');
+  errEl.style.display = 'none';
+  if (!username || !pw) { showErr(errEl, 'Please enter your username and password.'); return; }
+  const btn = document.getElementById('btnLogin');
+  btn.textContent = 'Signing in…'; btn.disabled = true;
+  try {
+    await signInWithEmailAndPassword(auth, toEmail(username), pw);
+    btn.textContent = 'Sign In'; btn.disabled = false;
+  } catch(e) {
+    showErr(errEl, friendlyErr(e.code));
+    btn.textContent = 'Sign In'; btn.disabled = false;
   }
-});
+};
+document.getElementById('loginPw').onkeydown = e => { if (e.key === 'Enter') document.getElementById('btnLogin').click(); };
 
-/* Admin login */
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  const pass = document.getElementById("adminPassword").value;
-  if(pass === ADMIN_PASSWORD){
-    isAdmin = true; 
-    closePopup('adminLogin');
-    openPostPopup(); 
-    renderAnnouncements(); 
-  } else alert("Wrong password");
-});
 
-/* Open Post Popup */
-function openPostPopup(id=null){
-  editingId = id;
-  document.getElementById("postTitle").innerText = id ? "Edit Announcement" : "New Announcement";
-  document.getElementById("titleInput").value = "";
-  document.getElementById("contentInput").value = "";
+/* ── SIGN OUT ── */
+document.getElementById('btnSignout').onclick = () => {
+  currentUid = null;
+  signOut(auth);
+};
 
-  if(id){
-    getDocs(collection(db,"announcements")).then(query=>{
-      query.forEach(docSnap=>{
-        if(docSnap.id === id){
-          const data = docSnap.data();
-          document.getElementById("titleInput").value = data.title;
-          document.getElementById("contentInput").value = data.content;
-        }
+/* ── AUTH STATE ── */
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    currentUid      = null;
+    currentRole     = null;
+    currentUserData = null;
+    if (unsubAnn)   { unsubAnn();   unsubAnn = null; }
+    if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+    if (unsubChat)  { unsubChat();  unsubChat = null; }
+    if (unsubRoles) { unsubRoles(); unsubRoles = null; }
+    isSuperAdmin = false;
+    customRoles  = {};
+    document.getElementById('shell').classList.remove('is-admin');
+    // reset login button in case it was stuck
+    const btn = document.getElementById('btnLogin');
+    btn.textContent = 'Sign In'; btn.disabled = false;
+    showScreen('auth');
+    return;
+  }
+
+  // Already fully set up for this exact user — skip
+  if (user.uid === currentUid) return;
+  currentUid = user.uid;
+
+  let snap;
+  try {
+    snap = await getDoc(doc(db, 'users', user.uid));
+  } catch(e) {
+    const errEl = document.getElementById('loginErr');
+    errEl.textContent = 'Could not load account data. Check your connection.';
+    errEl.style.display = 'block';
+    currentUid = null;
+    await signOut(auth);
+    return;
+  }
+
+  if (!snap.exists()) {
+    // Firestore doc missing — auto-create it (handles cleaned-up duplicates)
+    const username     = user.email ? user.email.replace('@spcitclub.com','') : 'unknown';
+    const isAdminAcct  = username === 'admin';
+    try {
+      await setDoc(doc(db, 'users', user.uid), {
+        name:      isAdminAcct ? 'Admin' : username,
+        username,
+        role:      isAdminAcct ? 'admin' : 'user',
+        status:    'approved',
+        createdAt: new Date().toISOString()
       });
-    });
-  }
-  openPopup('postPopup');
-}
-
-/* Save Post */
-document.getElementById("savePostBtn").addEventListener("click", async ()=>{
-  if(!isAdmin) return alert("You must be logged in as admin!");
-  const title = document.getElementById("titleInput").value.trim();
-  const content = document.getElementById("contentInput").value.trim();
-  const file = document.getElementById("thumbnailInput").files[0];
-  if(!title || !content) return alert("Title and content required");
-
-  let imageUrl = null;
-  if(file){
-    const storageRef = ref(storage,'thumbnails/'+file.name+Date.now());
-    await uploadBytes(storageRef,file);
-    imageUrl = await getDownloadURL(storageRef);
+      snap = await getDoc(doc(db, 'users', user.uid));
+    } catch(e2) {
+      const errEl = document.getElementById('loginErr');
+      errEl.textContent = 'Could not recover account: ' + e2.code;
+      errEl.style.display = 'block';
+      currentUid = null;
+      await signOut(auth);
+      return;
+    }
   }
 
-  if(editingId){
-    await updateDoc(doc(db,"announcements",editingId),{title,content,image:imageUrl,date:new Date().toLocaleString()});
-  } else{
-    await addDoc(collection(db,"announcements"),{title,content,image:imageUrl,date:new Date().toLocaleString()});
+  const data = snap.data();
+  currentRole     = data.role;
+  currentUserData = data;
+  isSuperAdmin    = (data.username === 'admin');
+
+  if (data.status === 'disabled') {
+    currentUid = null;
+    await signOut(auth);
+    showScreen('auth');
+    const errEl = document.getElementById('loginErr');
+    errEl.textContent = 'Your account has been disabled. Contact the admin.';
+    errEl.style.display = 'block';
+    return;
   }
 
-  closePopup('postPopup');
+  showScreen('app');
+  const pill = document.getElementById('userPill');
+  pill.textContent = '@' + (data.username || data.name);
+  if (currentRole === 'admin') {
+    pill.classList.add('is-admin');
+    document.getElementById('nav-admin').style.display = '';
+    document.getElementById('shell').classList.add('is-admin');
+    document.getElementById('btnNewAnn').style.display = '';
+    startAdminListeners();
+    document.getElementById('roleMakerSection').style.display = isSuperAdmin ? '' : 'none';
+  } else {
+    pill.classList.remove('is-admin');
+    document.getElementById('nav-admin').style.display = 'none';
+    document.getElementById('shell').classList.remove('is-admin');
+    document.getElementById('btnNewAnn').style.display = 'none';
+  }
+  startAnnouncements();
+  startChat();
 });
 
-/* Delete Post */
-window.deletePost = async function(id){
-  if(!isAdmin) return alert("You must be logged in as admin!");
-  if(!confirm("Delete this post?")) return;
-  await deleteDoc(doc(db,"announcements",id));
-}
+/* ── ANNOUNCEMENTS ── */
+function startAnnouncements() {
+  if (unsubAnn) { unsubAnn(); unsubAnn = null; }
+  unsubAnn = onSnapshot(collection(db, 'announcements'), snapshot => {
+    const list = document.getElementById('annList');
+    if (snapshot.empty) { list.innerHTML = '<div class="ann-empty">📭 No announcements yet.</div>'; return; }
 
-/* Announcements rendering */
-const announcementsContainer = document.getElementById("announcementsContainer");
-
-function renderAnnouncements(){
-  onSnapshot(collection(db,"announcements"), snapshot=>{
-    announcementsContainer.innerHTML = "";
-    snapshot.forEach(docSnap=>{
-      const post = docSnap.data();
-      const id = docSnap.id;
-      const div = document.createElement("div");
-      div.className = "announcement";
-      div.innerHTML = `
-        ${post.image?`<img src="${post.image}">`:""}
-        <h3>${post.title}</h3>
-        <p>${post.content}</p>
-        <small>${post.date}</small>
-        ${isAdmin?`<div class="admin-controls">
-          <button onclick="openPostPopup('${id}')">Edit</button>
-          <button onclick="deletePost('${id}')">Delete</button>
-        </div>`:""}
-      `;
-      announcementsContainer.prepend(div);
+    // Group duplicates by title + content key
+    const byKey = {};
+    snapshot.forEach(d => {
+      const data = d.data();
+      const key  = (data.title||'').trim() + '||' + (data.content||'').trim();
+      if (!byKey[key]) byKey[key] = [];
+      byKey[key].push({ id: d.id, ...data });
     });
+
+    // For each group, pick the most recent as display, keep all IDs for actions
+    const posts = Object.values(byKey).map(docs => {
+      docs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return { ...docs[0], allIds: docs.map(d => d.id) };
+    });
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    list.innerHTML = posts.map(p => `
+      <div class="ann-card">
+        ${p.image ? `<img src="${p.image}" alt="">` : ''}
+        <div class="ann-body">
+          <div class="ann-meta"><span class="ann-badge">ADMIN</span>${p.date||''}</div>
+          <h3>${esc(p.title)}</h3>
+          <p>${esc(p.content)}</p>
+          <div class="ann-admin-btns">
+            <button class="btn-sm btn-edit" data-action="edit"   data-id="${p.id}" data-ids="${p.allIds.join(',')}">Edit</button>
+            <button class="btn-sm btn-del"  data-action="delete" data-ids="${p.allIds.join(',')}">Delete</button>
+          </div>
+        </div>
+      </div>`).join('');
   });
+
+  document.getElementById('annList').onclick = e => {
+    const eb  = e.target.closest('[data-action="edit"]');
+    const db2 = e.target.closest('[data-action="delete"]');
+    if (eb)  openPost(eb.dataset.id, eb.dataset.ids);
+    if (db2) deletePost(db2.dataset.ids);
+  };
 }
 
-// Start
-renderAnnouncements();
+/* ── ADMIN ── */
+function startAdminListeners() {
+  if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+
+  // Load custom roles in real-time
+  if (unsubRoles) { unsubRoles(); unsubRoles = null; }
+  unsubRoles = onSnapshot(collection(db, 'roles'), snapshot => {
+    customRoles = {};
+    snapshot.forEach(d => { customRoles[d.id] = d.data(); });
+    renderRoleList();
+    // re-render members so role tags update
+    renderMemberList(lastMemberSnapshot);
+  });
+
+  let lastMemberSnapshot = null;
+  unsubUsers = onSnapshot(collection(db, 'users'), snapshot => {
+    lastMemberSnapshot = snapshot;
+    renderMemberList(snapshot);
+  });
+
+  function renderMemberList(snapshot) {
+    if (!snapshot) return;
+
+    // Group by username
+    const byUsername = {};
+    snapshot.forEach(d => {
+      const u   = { id: d.id, ...d.data() };
+      const key = u.username || u.id;
+      if (!byUsername[key]) byUsername[key] = [];
+      byUsername[key].push(u);
+    });
+
+    const members = Object.values(byUsername).map(docs => {
+      docs.sort((a, b) => {
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (b.role === 'admin' && a.role !== 'admin') return 1;
+        return (b.createdAt||'').localeCompare(a.createdAt||'');
+      });
+      const primary = docs[0];
+      return { ...primary, allIds: docs.map(d => d.id), dupCount: docs.length };
+    });
+
+    members.sort((a, b) => {
+      if (a.role === 'admin' && b.role !== 'admin') return -1;
+      if (b.role === 'admin' && a.role !== 'admin') return 1;
+      return (a.name||'').localeCompare(b.name||'');
+    });
+
+    document.getElementById('memberList').innerHTML = members.length
+      ? members.map(u => {
+          const isAdmin      = u.role === 'admin';
+          const isDisabled   = u.status === 'disabled';
+          const isSelf       = u.username === currentUserData?.username;
+          const canActOnThis = isSuperAdmin || !isAdmin; // superadmin can act on anyone; regular admin only on non-admins
+          const dupBadge     = u.dupCount > 1
+            ? `<span style="font-family:var(--mono);font-size:9px;background:rgba(128,0,32,.1);color:var(--crimson);border:1px solid rgba(128,0,32,.2);border-radius:4px;padding:1px 6px;margin-left:6px;">${u.dupCount} merged</span>`
+            : '';
+
+          // Custom role tag
+          let roleTag = '';
+          if (isAdmin) {
+            roleTag = `<span class="role-tag role-admin">Admin</span>`;
+          } else if (u.customRole && customRoles[u.customRole]) {
+            const cr = customRoles[u.customRole];
+            const textColor = isLightColor(cr.color) ? '#000' : '#fff';
+            roleTag = `<span class="role-tag" style="background:${cr.color};color:${textColor};border:none;">${esc(cr.name)}</span>`;
+          } else {
+            roleTag = `<span class="role-tag role-user">Member</span>`;
+          }
+
+          return `
+          <div class="member-card ${isDisabled ? 'member-disabled' : ''}">
+            <div class="req-info">
+              <div class="req-name">
+                ${esc(u.name||'Unknown')}${dupBadge}
+                ${isDisabled ? '<span class="tag-disabled">Disabled</span>' : ''}
+              </div>
+              <div class="req-email" style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+                @${esc(u.username||'')}
+                ${roleTag}
+              </div>
+            </div>
+            <div class="req-btns">
+              ${!isAdmin && !isSelf ? `
+                <button class="btn-promote" data-ids="${u.allIds.join(',')}" data-action="assign-role">Assign Role</button>
+              ` : ''}
+              ${!isSelf && canActOnThis ? `
+                ${isAdmin && isSuperAdmin ? `<button class="btn-disable" data-ids="${u.allIds.join(',')}" data-action="demote" style="border-color:var(--muted);color:var(--muted);">Remove Admin</button>` : ''}
+                ${!isAdmin ? `<button class="btn-promote" data-ids="${u.allIds.join(',')}" data-action="promote">Make Admin</button>` : ''}
+                <button class="${isDisabled ? 'btn-enable' : 'btn-disable'}"
+                  data-ids="${u.allIds.join(',')}"
+                  data-action="${isDisabled ? 'enable' : 'disable'}">
+                  ${isDisabled ? 'Enable' : 'Disable'}
+                </button>
+                <button class="btn-delete-acc" data-ids="${u.allIds.join(',')}" data-action="delete-acc">Delete</button>
+              ` : isSelf ? `<span style="font-family:var(--mono);font-size:9px;color:var(--muted)">(you)</span>` : ''}
+            </div>
+          </div>`;
+        }).join('')
+      : '<div class="no-items">No members yet.</div>';
+  }
+
+  document.getElementById('memberList').onclick = async e => {
+    const btn    = e.target.closest('[data-action]');
+    if (!btn) return;
+    const ids    = btn.dataset.ids ? btn.dataset.ids.split(',') : [];
+    const action = btn.dataset.action;
+
+    if (action === 'promote') {
+      if (!confirm('Make this user an admin? Only the Admin account can remove this.')) return;
+      await Promise.all(ids.map(id => updateDoc(doc(db,'users',id), { role:'admin', customRole: null })));
+    } else if (action === 'demote') {
+      if (!isSuperAdmin) return;
+      if (!confirm('Remove admin role from this user?')) return;
+      await Promise.all(ids.map(id => updateDoc(doc(db,'users',id), { role:'user' })));
+    } else if (action === 'disable') {
+      if (!confirm('Disable this account? They will not be able to sign in.')) return;
+      await Promise.all(ids.map(id => updateDoc(doc(db,'users',id), { status:'disabled' })));
+    } else if (action === 'enable') {
+      await Promise.all(ids.map(id => updateDoc(doc(db,'users',id), { status:'approved' })));
+    } else if (action === 'delete-acc') {
+      if (!confirm('Permanently delete this account?')) return;
+      await Promise.all(ids.map(id => deleteDoc(doc(db,'users',id))));
+    } else if (action === 'assign-role') {
+      openAssignRole(ids, btn.closest('.member-card').querySelector('.req-name').textContent.trim());
+    }
+  };
+}
+
+function renderRoleList() {
+  const roleListEl = document.getElementById('roleList');
+  if (!roleListEl) return;
+  const roles = Object.entries(customRoles);
+  if (!roles.length) {
+    roleListEl.innerHTML = '<div class="no-items">No custom roles yet.</div>';
+    return;
+  }
+  roleListEl.innerHTML = roles.map(([id, r]) => {
+    const textColor = isLightColor(r.color) ? '#000' : '#fff';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;">
+      <span class="role-tag" style="background:${r.color};color:${textColor};border:none;font-size:11px;">${esc(r.name)}</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-sm btn-edit" data-role-id="${id}" data-role-action="edit-role">Edit</button>
+        <button class="btn-sm btn-del"  data-role-id="${id}" data-role-action="del-role">Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// detect light colour so we can pick black or white text
+function isLightColor(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return (r*299 + g*587 + b*114) / 1000 > 128;
+}
+
+let editingRoleId = null;
+function openRoleSheet(id) {
+  editingRoleId = id || null;
+  const existing = id ? customRoles[id] : null;
+  document.getElementById('roleSheetTitle').textContent = id ? 'Edit Role' : 'New Role';
+  document.getElementById('roleNameInput').value  = existing?.name  || '';
+  document.getElementById('roleColorInput').value = existing?.color || '#800020';
+  document.getElementById('roleErr').style.display = 'none';
+  updateColorPreview();
+  document.getElementById('roleOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('roleNameInput').focus(), 50);
+}
+
+function updateColorPreview() {
+  const color = document.getElementById('roleColorInput').value;
+  const prev  = document.getElementById('roleColorPreview');
+  prev.style.background = color;
+  prev.style.color      = isLightColor(color) ? '#000' : '#fff';
+  prev.textContent      = document.getElementById('roleNameInput').value || 'Preview';
+}
+
+document.getElementById('roleColorInput').addEventListener('input', updateColorPreview);
+document.getElementById('roleNameInput').addEventListener('input', updateColorPreview);
+document.getElementById('btnNewRole').onclick     = () => openRoleSheet(null);
+document.getElementById('btnCancelRole').onclick  = () => document.getElementById('roleOverlay').classList.remove('open');
+document.getElementById('btnSaveRole').onclick    = async () => {
+  const name  = document.getElementById('roleNameInput').value.trim();
+  const color = document.getElementById('roleColorInput').value;
+  const errEl = document.getElementById('roleErr');
+  errEl.style.display = 'none';
+  if (!name) { showErr(errEl, 'Please enter a role name.'); return; }
+  const btn = document.getElementById('btnSaveRole');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  if (editingRoleId) {
+    await updateDoc(doc(db,'roles',editingRoleId), { name, color });
+  } else {
+    await addDoc(collection(db,'roles'), { name, color, createdAt: new Date().toISOString() });
+  }
+  btn.textContent = 'Save Role'; btn.disabled = false;
+  document.getElementById('roleOverlay').classList.remove('open');
+};
+
+// role list edit/delete delegation
+document.getElementById('roleList').addEventListener('click', async e => {
+  const btn    = e.target.closest('[data-role-action]');
+  if (!btn) return;
+  const roleId = btn.dataset.roleId;
+  if (btn.dataset.roleAction === 'edit-role') {
+    openRoleSheet(roleId);
+  } else if (btn.dataset.roleAction === 'del-role') {
+    if (!confirm('Delete this role? Members with this role will revert to Member.')) return;
+    await deleteDoc(doc(db,'roles',roleId));
+  }
+});
+
+// Assign role sheet
+let assigningIds = [];
+function openAssignRole(ids, memberName) {
+  assigningIds = ids;
+  document.getElementById('assignRoleSub').textContent = `Choose a role for ${memberName}`;
+  const listEl = document.getElementById('assignRoleList');
+
+  // Build options: Member (default) + all custom roles
+  const options = [{ id: null, name: 'Member', color: 'rgba(128,0,32,.08)', textColor: 'var(--crimson)' }];
+  Object.entries(customRoles).forEach(([id, r]) => {
+    options.push({ id, name: r.name, color: r.color, textColor: isLightColor(r.color) ? '#000' : '#fff' });
+  });
+
+  listEl.innerHTML = options.map(o =>
+    `<button data-role-assign="${o.id||''}" style="
+      width:100%;background:${o.color};color:${o.textColor};
+      border:1px solid rgba(0,0,0,.1);border-radius:9px;
+      font-family:var(--sans);font-size:14px;font-weight:700;
+      padding:12px;cursor:pointer;text-align:left;">
+      ${esc(o.name)}
+    </button>`
+  ).join('');
+
+  listEl.onclick = async e => {
+    const btn = e.target.closest('[data-role-assign]');
+    if (!btn) return;
+    const roleId = btn.dataset.roleAssign || null;
+    await Promise.all(assigningIds.map(id =>
+      updateDoc(doc(db,'users',id), { customRole: roleId || null })
+    ));
+    document.getElementById('assignRoleOverlay').classList.remove('open');
+  };
+
+  document.getElementById('assignRoleOverlay').classList.add('open');
+}
+document.getElementById('btnCancelAssign').onclick = () => document.getElementById('assignRoleOverlay').classList.remove('open');
+
+/* ── POST ── */
+document.getElementById('btnNewAnn').onclick     = () => openPost(null);
+document.getElementById('btnCancelPost').onclick = () => document.getElementById('postOverlay').classList.remove('open');
+document.getElementById('btnSavePost').onclick   = savePost;
+document.querySelectorAll('.overlay').forEach(o => {
+  o.onclick = e => { if (e.target === o) o.classList.remove('open'); };
+});
+function openPost(id, ids) {
+  editingId  = id;
+  editingIds = ids || null;
+  document.getElementById('postTitle').textContent = id ? 'Edit Announcement' : 'New Announcement';
+  document.getElementById('titleInput').value = '';
+  document.getElementById('bodyInput').value  = '';
+  document.getElementById('imgInput').value   = '';
+  if (id) {
+    getDoc(doc(db,'announcements',id)).then(d => {
+      if (d.exists()) {
+        document.getElementById('titleInput').value = d.data().title   || '';
+        document.getElementById('bodyInput').value  = d.data().content || '';
+      }
+    });
+  }
+  document.getElementById('postOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('titleInput').focus(), 50);
+}
+
+/* ── RATE LIMITS ── */
+let lastAnnTime  = 0;
+let lastChatTime = 0;
+let lastUserTime = 0;
+
+function checkRate(lastTime, cooldownMs, label) {
+  const elapsed = Date.now() - lastTime;
+  if (elapsed < cooldownMs) {
+    const secs = Math.ceil((cooldownMs - elapsed) / 1000);
+    alert(`Please wait ${secs} second${secs !== 1 ? 's' : ''} before ${label}.`);
+    return false;
+  }
+  return true;
+}
+
+async function savePost() {
+  if (!checkRate(lastAnnTime, 5000, 'posting another announcement')) return;
+  const title   = document.getElementById('titleInput').value.trim();
+  const content = document.getElementById('bodyInput').value.trim();
+  const file    = document.getElementById('imgInput').files[0];
+  if (!title || !content) { alert('Please fill in title and message.'); return; }
+  const btn = document.getElementById('btnSavePost');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  let imageUrl = null;
+  if (file) {
+    const r = ref(storage, 'thumbnails/' + Date.now() + '_' + file.name);
+    await uploadBytes(r, file);
+    imageUrl = await getDownloadURL(r);
+  }
+  const payload = { title, content, date: new Date().toLocaleString('en-AU') };
+  if (imageUrl) payload.image = imageUrl;
+  if (editingId) {
+    // editingIds holds all duplicate IDs for this announcement
+    const allIds = editingIds ? editingIds.split(',') : [editingId];
+    await Promise.all(allIds.map(id => updateDoc(doc(db,'announcements',id), payload)));
+  } else {
+    await addDoc(collection(db,'announcements'), payload);
+  }
+  lastAnnTime = Date.now();
+  btn.textContent = 'Post'; btn.disabled = false;
+  document.getElementById('postOverlay').classList.remove('open');
+}
+
+async function deletePost(ids) {
+  if (!confirm('Delete this announcement?')) return;
+  await Promise.all(ids.split(',').map(id => deleteDoc(doc(db,'announcements',id))));
+}
+
+/* ── CREATE ACCOUNTS ── */
+document.getElementById('btnOpenIndividual').onclick = () => {
+  document.getElementById('indName').value     = '';
+  document.getElementById('indUsername').value = '';
+  document.getElementById('indPassword').value = '';
+  document.getElementById('indRole') && (document.getElementById('indRole').value = 'user');
+  document.getElementById('indErr').style.display = 'none';
+  document.getElementById('indOk').style.display  = 'none';
+  document.getElementById('individualOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('indName').focus(), 50);
+};
+document.getElementById('btnCancelInd').onclick = () => document.getElementById('individualOverlay').classList.remove('open');
+
+document.getElementById('btnCreateInd').onclick = async () => {
+  if (!checkRate(lastUserTime, 3000, 'creating another account')) return;
+  const name     = document.getElementById('indName').value.trim();
+  const username = document.getElementById('indUsername').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+  const pw       = document.getElementById('indPassword').value;
+  const role     = 'user';
+  const errEl    = document.getElementById('indErr');
+  const okEl     = document.getElementById('indOk');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+  if (!name || !username || !pw) { showErr(errEl, 'Please fill in all fields.'); return; }
+  if (username.length < 3)       { showErr(errEl, 'Username must be at least 3 characters.'); return; }
+  if (pw.length < 6)             { showErr(errEl, 'Password must be at least 6 characters.'); return; }
+  const btn = document.getElementById('btnCreateInd');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+  try {
+    const cred = await createUserWithEmailAndPassword(authSecond, toEmail(username), pw);
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      name, username, role, status: 'approved',
+      createdAt: new Date().toISOString()
+    });
+    await signOut(authSecond);
+    lastUserTime = Date.now();
+    okEl.textContent = `✓ Account created for ${name} (@${username})`;
+    okEl.style.display = 'block';
+    document.getElementById('indName').value     = '';
+    document.getElementById('indUsername').value = '';
+    document.getElementById('indPassword').value = '';
+  } catch(e) {
+    showErr(errEl, friendlyErr(e.code));
+  }
+  btn.textContent = 'Create'; btn.disabled = false;
+};
+
+document.getElementById('btnOpenBulk').onclick = () => {
+  document.getElementById('bulkInput').value           = '';
+  document.getElementById('bulkErr').style.display     = 'none';
+  document.getElementById('bulkResults').style.display = 'none';
+  document.getElementById('bulkResults').innerHTML     = '';
+  document.getElementById('bulkOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('bulkInput').focus(), 50);
+};
+document.getElementById('btnCancelBulk').onclick = () => document.getElementById('bulkOverlay').classList.remove('open');
+
+document.getElementById('btnCreateBulk').onclick = async () => {
+  const raw    = document.getElementById('bulkInput').value.trim();
+  const errEl  = document.getElementById('bulkErr');
+  const resEl  = document.getElementById('bulkResults');
+  errEl.style.display = 'none';
+  if (!raw) { showErr(errEl, 'Please enter at least one account.'); return; }
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const parsed = [];
+  for (const line of lines) {
+    const parts = line.split(',').map(p => p.trim());
+    if (parts.length < 3) { showErr(errEl, `Invalid line: "${line}" — format is Name, Username, Password`); return; }
+    parsed.push({ name: parts[0], username: parts[1].toLowerCase().replace(/[^a-z0-9]/g,''), pw: parts[2] });
+  }
+
+  const btn = document.getElementById('btnCreateBulk');
+  btn.textContent = 'Creating…'; btn.disabled = true;
+
+  const results = [];
+  for (const u of parsed) {
+    if (!checkRate(lastUserTime, 3000, 'creating another account')) {
+      results.push({ ok: false, text: `✗ ${u.name} (@${u.username}) — rate limit, waited too fast` });
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    try {
+      const cred = await createUserWithEmailAndPassword(authSecond, toEmail(u.username), u.pw);
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        name: u.name, username: u.username, role: 'user', status: 'approved',
+        createdAt: new Date().toISOString()
+      });
+      await signOut(authSecond);
+      lastUserTime = Date.now();
+      results.push({ ok: true, text: `✓ ${u.name} (@${u.username})` });
+      // wait 3s between each bulk creation
+      if (parsed.indexOf(u) < parsed.length - 1) await new Promise(r => setTimeout(r, 3000));
+    } catch(e) {
+      results.push({ ok: false, text: `✗ ${u.name} (@${u.username}) — ${friendlyErr(e.code)}` });
+    }
+  }
+
+  resEl.style.display = 'block';
+  resEl.innerHTML = results.map(r =>
+    `<div style="font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:6px;margin-bottom:5px;
+      background:${r.ok ? 'rgba(22,163,74,.08)' : 'rgba(220,38,38,.06)'};
+      color:${r.ok ? 'var(--green)' : 'var(--red)'};
+      border:1px solid ${r.ok ? 'rgba(22,163,74,.2)' : 'rgba(220,38,38,.15)'}">
+      ${r.text}
+    </div>`).join('');
+
+  btn.textContent = 'Create All'; btn.disabled = false;
+  document.getElementById('bulkInput').value = '';
+};
+
+/* ── CHAT ── */
+function startChat() {
+  if (unsubChat) { unsubChat(); unsubChat = null; }
+
+  const chatInput = document.getElementById('chatInput');
+  const msgsEl    = document.getElementById('chatMessages');
+
+  msgsEl.innerHTML = '<div class="chat-loading">Loading messages…</div>';
+
+  const q = query(collection(db, 'messages'), orderBy('ts', 'asc'), limit(100));
+
+  unsubChat = onSnapshot(q,
+    snapshot => {
+      if (snapshot.empty) {
+        msgsEl.innerHTML = '<div class="chat-loading">No messages yet. Say hello! 👋</div>';
+        return;
+      }
+      const myUsername = currentUserData?.username || '';
+      let lastDay = '';
+      let html = '';
+      snapshot.forEach(d => {
+        const msg  = d.data();
+        const ts   = msg.ts;
+        const date = ts && ts.toDate ? ts.toDate() : new Date();
+        const day  = date.toLocaleDateString('en-AU', { weekday:'long', day:'numeric', month:'long' });
+        const time = date.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
+        const mine = msg.username === myUsername;
+        if (day !== lastDay) {
+          html += `<div class="chat-day-label">${day}</div>`;
+          lastDay = day;
+        }
+        html += `
+          <div class="chat-bubble-wrap ${mine ? 'mine' : 'theirs'} ${msg.role === 'admin' ? 'admin-msg' : ''}">
+            ${!mine ? `<div class="chat-meta"><span class="chat-username">@${esc(msg.username)}</span><span>${time}</span></div>` : ''}
+            <div class="chat-bubble">${esc(msg.text)}</div>
+            ${mine ? `<div class="chat-meta" style="margin-top:3px;">${time}</div>` : ''}
+          </div>`;
+      });
+      msgsEl.innerHTML = html;
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    },
+    err => {
+      msgsEl.innerHTML = `<div class="chat-loading" style="color:var(--red)">⚠️ Could not load messages: ${err.code}<br><small>Make sure the messages collection is allowed in Firestore rules.</small></div>`;
+    }
+  );
+
+  async function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    if (!currentUserData) {
+      alert('Not signed in. Please refresh and sign in again.');
+      return;
+    }
+    if (!checkRate(lastChatTime, 2000, 'sending another message')) return;
+    chatInput.disabled = true;
+    chatInput.value    = '';
+    try {
+      await addDoc(collection(db, 'messages'), {
+        text,
+        username: currentUserData.username || 'unknown',
+        name:     currentUserData.name     || 'Unknown',
+        role:     currentUserData.role     || 'user',
+        ts:       serverTimestamp()
+      });
+      lastChatTime = Date.now();
+    } catch(e) {
+      chatInput.value = text;
+      alert('Failed to send: ' + (e.code || e.message));
+    }
+    chatInput.disabled = false;
+    chatInput.focus();
+  }
+
+  chatInput.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+}
+
+/* ── UTILS ── */
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+function friendlyErr(code) {
+  return ({
+    'auth/invalid-credential':   'Incorrect username or password.',
+    'auth/user-not-found':       'No account found with that username.',
+    'auth/wrong-password':       'Incorrect password.',
+    'auth/email-already-in-use': 'That username is already taken.',
+    'auth/weak-password':        'Password must be at least 6 characters.',
+    'auth/too-many-requests':    'Too many attempts. Please try again later.',
+    'auth/invalid-email':        'Invalid username — use letters and numbers only.',
+    'auth/network-request-failed': 'Network error. Check your connection.',
+    'auth/operation-not-allowed': 'Sign-in is not enabled. Contact the admin.',
+  })[code] || 'Error: ' + code;
+}
+
+showScreen('auth');
 </script>
 </body>
-
 </html>
-
