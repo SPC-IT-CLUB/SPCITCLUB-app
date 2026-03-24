@@ -1031,7 +1031,6 @@ function openPost(id, ids) {
 
 /* ── RATE LIMITS ── */
 let lastAnnTime  = 0;
-let lastChatTime = 0;
 let lastUserTime = 0;
 
 function checkRate(lastTime, cooldownMs, label) {
@@ -1239,7 +1238,6 @@ function startChat() {
       alert('Not signed in. Please refresh and sign in again.');
       return;
     }
-    if (!checkRate(lastChatTime, 2000, 'sending another message')) return;
     chatInput.disabled = true;
     chatInput.value    = '';
     try {
@@ -1250,7 +1248,6 @@ function startChat() {
         role:     currentUserData.role     || 'user',
         ts:       serverTimestamp()
       });
-      lastChatTime = Date.now();
     } catch(e) {
       chatInput.value = text;
       alert('Failed to send: ' + (e.code || e.message));
