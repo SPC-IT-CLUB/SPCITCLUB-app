@@ -698,12 +698,14 @@ function startChat() {
       const time=date.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
       const mine=msg.username===myU;
       if(day!==lastDay){html+=`<div class="chat-day-label">${day}</div>`;lastDay=day;}
-      // role tags
+      // Build role tags — admin badge + all custom roles
       let rtags='';
-      if(msg.role==='admin') rtags+=`<span class="chat-role-tag admin-ctag">Admin</span>`;
-      if(msg.customRoles&&Array.isArray(msg.customRoles)){
-        msg.customRoles.forEach(rid=>{if(customRoles[rid]){const r=customRoles[rid],tc=isLight(r.color)?'#000':'#fff';rtags+=`<span class="chat-role-tag" style="background:${r.color};color:${tc};border:none;">${esc(r.name)}</span>`;}});
-      }
+      // Reconstruct a userData-like object from the message fields
+      const msgUserData = { role: msg.role||'user', customRoles: msg.customRoles||[], customRole: msg.customRole||null };
+      buildRoleTags(msgUserData).forEach(t=>{
+        const tc=t.light?'#000':'#fff';
+        rtags+=`<span class="chat-role-tag ${t.isAdmin?'admin-ctag':''}" style="${t.isAdmin?'':'background:'+t.color+';color:'+tc+';border:none;'}">${esc(t.name)}</span>`;
+      });
       html+=`<div class="chat-bubble-wrap ${mine?'mine':'theirs'}">
         ${!mine?`<div class="chat-meta"><span class="chat-sender-name">${esc(msg.name||msg.username)}</span>${rtags}<span>${time}</span></div>`:''}
         <div class="chat-bubble">${esc(msg.text)}</div>
@@ -719,8 +721,16 @@ function startChat() {
   async function send() {
     const text=ci.value.trim(); if(!text||!currentUserData) return;
     ci.disabled=true; ci.value='';
+    const allRoleIds = currentUserData.customRoles||(currentUserData.customRole?[currentUserData.customRole]:[]);
     try {
-      await addDoc(collection(db,'messages'),{text,username:currentUserData.username||'unknown',name:currentUserData.name||'Unknown',role:currentUserData.role||'user',customRoles:currentUserData.customRoles||[],ts:serverTimestamp()});
+      await addDoc(collection(db,'messages'),{
+        text,
+        username:    currentUserData.username||'unknown',
+        name:        currentUserData.name||'Unknown',
+        role:        currentUserData.role||'user',
+        customRoles: allRoleIds,
+        ts:          serverTimestamp()
+      });
       // Keep max 40 messages — delete oldest if over limit
       const allMsgs = await getDocs(query(collection(db,'messages'), orderBy('ts','asc')));
       if (allMsgs.docs.length > 40) {
